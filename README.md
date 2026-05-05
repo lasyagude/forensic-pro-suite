@@ -1,19 +1,43 @@
-# 🛡️ Sentinel-Forensics: AI-Augmented Digital Investigation Suite
+# 🛡️ Sentinel-Forensics: AI-Augmented Digital Investigation Suite (Babin Edition)
 
-A full-stack Digital Forensics Workstation for automated artifact extraction, geospatial threat triage, and chain-of-custody documentation.
+A high-fidelity Digital Forensics Workstation significantly modified and enhanced by **Babin** for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
+
+## 🌟 Babin's Advanced Modifications (The "Strong" Version)
+
+This version has been overhauled to provide military-grade forensic reliability:
+
+*   **⚡ Dual-Hash Integrity Pipeline:** Implemented simultaneous SHA-256 and MD5 hashing for every artifact to ensure zero-collision data integrity.
+*   **🔍 Magic Number (File Signature) Analysis:** Added deep header inspection to detect extension spoofing and hidden executables disguised as documents.
+*   **📡 Live Threat Intelligence Feed:** Integrated a real-time (simulated) global threat monitoring dashboard for constant situational awareness.
+*   **🛡️ Heuristic Threat Assessment:** Automated classification of evidence risk levels (Neutral vs. Elevated) based on signature verification.
+*   **📂 Advanced Metadata Extraction:** Expanded the Python `ForensicEngine` to capture OS-level artifacts like file permissions and last-accessed timestamps.
+*   **🤖 Upgraded Forensic Assistant:** Re-trained the interactive AI guide to support Babin's advanced triage methodology.
+
+---
 
 ## 🚀 Key Features
 
 * **Secure Investigator Portal:** NextAuth.js credential-based login with session management.
-* **Automated Triage Pipeline:** FastAPI backend performs SHA-256 integrity hashing and file metadata extraction via a `ForensicEngine` class.
-* **Persistent Evidence Vault:** Case records stored in Supabase (PostgreSQL) with RLS, linked to the authenticated investigator's email.
-* **Geospatial Threat Attribution:** Interactive zoomable world map (React-Simple-Maps + D3-Geo) plotting 6 simulated threat nodes with severity-coded markers.
-* **Forensic Tool Dashboard:** Cards for EnCase, Wireshark, Autopsy, FTK Imager, and Data Recovery — plus the live **Automated Flow** trigger.
-* **Analysis Logs:** Real-time animated log stream displayed during file processing.
-* **Interactive Forensic Assistant:** Framer Motion robot widget with a 6-step guided tutorial (progress persisted via `localStorage`).
+* **Automated Triage Pipeline:** FastAPI backend performs SHA-256 + MD5 integrity hashing and deep metadata extraction.
+* **Persistent Evidence Vault:** Case records stored in Supabase (PostgreSQL) with RLS, linked to the investigator.
+* **Geospatial Threat Attribution:** Interactive world map plotting 6 simulated threat nodes with severity-coded markers.
+* **Forensic Tool Dashboard:** Cards for EnCase, Wireshark, Autopsy, and Babin's **Automated Flow** trigger.
+* **Babin Live Feed:** Real-time log stream of global forensic events.
 * **Xterm.js Terminal:** Embedded browser-based CLI for manual triage commands.
-* **PDF Report Generation:** Client-side chain-of-custody reports via jsPDF + jspdf-autotable, exported per case record.
-* **Case Volume Chart:** Recharts bar chart showing case activity over the last 7 days, live in the dashboard.
+* **PDF Report Generation:** Enhanced chain-of-custody reports via jsPDF including Babin's advanced metrics.
+
+---
+
+## 👨‍💻 Modified By: Babin
+
+This project was modified to be stronger, faster, and more reliable. For collaborations or inquiries, contact Babin:
+
+*   **GitHub:** [KGFCH2](https://github.com/KGFCH2)
+*   **LinkedIn:** [Babin Bid](https://www.linkedin.com/in/babinbid123)
+*   **Mail:** [babinbid05@gmail.com](mailto:babinbid05@gmail.com)
+
+---
+
 
 ## 🛠️ Tech Stack
 

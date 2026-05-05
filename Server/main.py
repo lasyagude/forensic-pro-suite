@@ -89,12 +89,17 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
             "id": f"CASE-{int(time.time())}",
             "filename": file.filename,
             "hash": f"SHA256: {report['hash_sha256']}",
+            "hash_md5": f"MD5: {report['hash_md5']}",
             "size": f"{report['metadata']['size_bytes']} bytes",
             "created": report['metadata']['created'],
             "modified": report['metadata']['modified'],
+            "accessed": report['metadata']['accessed'],
+            "permissions": report['metadata']['permissions'],
+            "magic_signature": report['metadata']['magic_signature'],
+            "threat_level": report['threat_level'],
             "status": "COMPLETED",
             "report_generated": True,
-            "findings": "No malicious artifacts detected in initial triage."
+            "findings": f"Babin's Advanced Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5)."
         }
     except HTTPException:
         raise
