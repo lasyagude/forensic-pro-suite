@@ -1,8 +1,8 @@
-# 🛡️ Sentinel-Forensics: AI-Augmented Digital Investigation Suite (Babin Edition)
+# 🛡️ Sentinel-Forensics: AI-Augmented Digital Investigation Suite
 
-A high-fidelity Digital Forensics Workstation significantly modified and enhanced by **Babin** for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
+A high-fidelity Digital Forensics Workstation enhanced for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
 
-## 🌟 Babin's Advanced Modifications (The "Strong" Version)
+## 🌟 Advanced Forensic Enhancements (The "Strong" Version)
 
 This version has been overhauled to provide military-grade forensic reliability:
 
@@ -11,7 +11,7 @@ This version has been overhauled to provide military-grade forensic reliability:
 *   **📡 Live Threat Intelligence Feed:** Integrated a real-time (simulated) global threat monitoring dashboard for constant situational awareness.
 *   **🛡️ Heuristic Threat Assessment:** Automated classification of evidence risk levels (Neutral vs. Elevated) based on signature verification.
 *   **📂 Advanced Metadata Extraction:** Expanded the Python `ForensicEngine` to capture OS-level artifacts like file permissions and last-accessed timestamps.
-*   **🤖 Upgraded Forensic Assistant:** Re-trained the interactive AI guide to support Babin's advanced triage methodology.
+*   **🤖 Upgraded Forensic Assistant:** Re-trained the interactive AI guide to support advanced triage methodology.
 
 ---
 
@@ -21,22 +21,13 @@ This version has been overhauled to provide military-grade forensic reliability:
 * **Automated Triage Pipeline:** FastAPI backend performs SHA-256 + MD5 integrity hashing and deep metadata extraction.
 * **Persistent Evidence Vault:** Case records stored in Supabase (PostgreSQL) with RLS, linked to the investigator.
 * **Geospatial Threat Attribution:** Interactive world map plotting 6 simulated threat nodes with severity-coded markers.
-* **Forensic Tool Dashboard:** Cards for EnCase, Wireshark, Autopsy, and Babin's **Automated Flow** trigger.
-* **Babin Live Feed:** Real-time log stream of global forensic events.
+* **Forensic Tool Dashboard:** Cards for EnCase, Wireshark, Autopsy, and the **Automated Flow** trigger.
+* **Live Threat Feed:** Real-time log stream of global forensic events.
 * **Xterm.js Terminal:** Embedded browser-based CLI for manual triage commands.
-* **PDF Report Generation:** Enhanced chain-of-custody reports via jsPDF including Babin's advanced metrics.
+* **PDF Report Generation:** Enhanced chain-of-custody reports via jsPDF including advanced metrics.
 
 ---
 
-## 👨‍💻 Modified By: Babin
-
-This project was modified to be stronger, faster, and more reliable. For collaborations or inquiries, contact Babin:
-
-*   **GitHub:** [KGFCH2](https://github.com/KGFCH2)
-*   **LinkedIn:** [Babin Bid](https://www.linkedin.com/in/babinbid123)
-*   **Mail:** [babinbid05@gmail.com](mailto:babinbid05@gmail.com)
-
----
 
 
 ## 🛠️ Tech Stack

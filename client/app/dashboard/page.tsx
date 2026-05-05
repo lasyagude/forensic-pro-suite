@@ -10,7 +10,7 @@ import AnalysisLogs from "@/components/AnalysisLogs";
 import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
-import BabinThreatFeed from "@/components/BabinThreatFeed";
+import ThreatIntelligenceFeed from "@/components/ThreatIntelligenceFeed";
 
 interface CaseRecord {
   id: string;
@@ -205,9 +205,6 @@ export default function DashboardPage() {
             Workstation:{" "}
             <span className="text-emerald-400 font-mono">
               AGENT_{session?.user?.name?.toUpperCase() || "INTEL"}
-            </span>
-            <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-mono animate-pulse">
-              BABIN_MODIFIED
             </span>
           </h1>
           <p className="text-slate-500 text-[10px] mt-1 font-mono uppercase tracking-[0.2em] flex items-center gap-2">
@@ -460,7 +457,7 @@ export default function DashboardPage() {
 
         <div className="lg:col-span-4 space-y-6">
           <div className="sticky top-6 space-y-6">
-            <BabinThreatFeed />
+            <ThreatIntelligenceFeed />
             <ForensicTerminal />
             <div className="mt-6">
               <RobotAssistant />

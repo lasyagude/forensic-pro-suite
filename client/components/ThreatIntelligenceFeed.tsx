@@ -6,16 +6,16 @@ const SIMULATED_LOGS = [
   "INCOMING: Automated SHA-256 integrity check initiated...",
   "DEEP_SCAN: Magic numbers identified as 0x89 0x50 0x4E 0x47 (PNG Signature)",
   "INTEGRITY: Dual-hash MD5 verification completed. Match found.",
-  "THREAT_INTEL: Cross-referencing findings with Babin's Global Database...",
+  "THREAT_INTEL: Cross-referencing findings with Global Signature Database...",
   "STATUS: Threat level determined: NEUTRAL.",
   "REPORT: Chain-of-custody documentation generated.",
   "ALERT: New forensic artifact detected in volatility buffer.",
   "NETWORK: Connection attempt from unauthorized IP range 192.168.1.105 blocked.",
   "SYSTEM: Kernel integrity verified. No rootkits detected.",
-  "BABIN_ENGINE: Heuristic analysis complete. No obfuscation found."
+  "CORE_ENGINE: Heuristic analysis complete. No obfuscation found."
 ];
 
-export default function BabinThreatFeed() {
+export default function ThreatIntelligenceFeed() {
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function BabinThreatFeed() {
       <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
         <h3 className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
-          Babin Live Threat Intel
+          Live Threat Intel
         </h3>
         <span className="text-[8px] text-slate-500">SECURE_CHANNEL_v4.2</span>
       </div>

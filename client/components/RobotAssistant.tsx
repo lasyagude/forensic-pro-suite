@@ -4,11 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import TutorialOverlay from "./TutorialOverlay";
 
 const lessons = [
-  { title: "Welcome", text: "Investigator, I am your Forensic Assistant. This workstation has been significantly upgraded by Babin for high-fidelity triage.", targetId: undefined },
-  { title: "Enhanced Identification", text: "Babin added Dual-Hash verification. We now verify integrity using BOTH SHA-256 and MD5 simultaneously for zero-collision confidence.", targetId: "tool-automated-flow" },
-  { title: "Deep Forensic Analysis", text: "Beyond just extension checks, Babin implemented Magic Number (Signature) verification to detect spoofed files and hidden executables.", targetId: "tool-automated-flow" },
-  { title: "Advanced Metadata", text: "We now extract deep artifact data including accessed timestamps, permissions, and threat levels, thanks to Babin's engine overhaul.", targetId: "tool-automated-flow" },
-  { title: "Final Step: Reporting", text: "Babin enhanced the reporting logic to include these advanced metrics. Click 'Automated Flow' to generate a Babin-modified PDF report.", targetId: "tool-automated-flow" },
+  { title: "Welcome", text: "Investigator, I am your Forensic Assistant. This workstation has been significantly upgraded for high-fidelity triage.", targetId: undefined },
+  { title: "Enhanced Identification", text: "Dual-Hash verification is active. We now verify integrity using BOTH SHA-256 and MD5 simultaneously for zero-collision confidence.", targetId: "tool-automated-flow" },
+  { title: "Deep Forensic Analysis", text: "Beyond just extension checks, the system performs Magic Number (Signature) verification to detect spoofed files and hidden executables.", targetId: "tool-automated-flow" },
+  { title: "Advanced Metadata", text: "We now extract deep artifact data including accessed timestamps, permissions, and threat levels, thanks to the engine overhaul.", targetId: "tool-automated-flow" },
+  { title: "Final Step: Reporting", text: "The reporting logic now includes these advanced metrics. Click 'Automated Flow' to generate a comprehensive PDF report.", targetId: "tool-automated-flow" },
 ];
 
 export default function RobotAssistant() {

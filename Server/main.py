@@ -99,7 +99,7 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
             "threat_level": report['threat_level'],
             "status": "COMPLETED",
             "report_generated": True,
-            "findings": f"Babin's Advanced Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5)."
+            "findings": f"Advanced Forensic Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5)."
         }
     except HTTPException:
         raise
