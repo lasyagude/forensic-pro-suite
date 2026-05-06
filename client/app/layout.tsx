@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // Step 3: Import the Providers component you created
 import Providers from "./providers"; 
+import Preloader from "@/components/Preloader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         {/* Step 3: Wrap children with Providers */}
         <Providers>
+          <Preloader />
           {children}
         </Providers>
       </body>

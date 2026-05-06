@@ -3,13 +3,29 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import dynamic from "next/dynamic";
 import RobotAssistant from "@/components/RobotAssistant";
-import ForensicTerminal from "@/components/Terminal";
-import ForensicMap from "@/components/ForensicMap";
+const ForensicTerminal = dynamic(() => import("@/components/Terminal"), { ssr: false });
+const ForensicMap = dynamic(() => import("@/components/ForensicMap"), { ssr: false });
 import AnalysisLogs from "@/components/AnalysisLogs";
 import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
+import ThreatIntelligenceFeed from "@/components/ThreatIntelligenceFeed";
+import { 
+  Search, 
+  Fish, 
+  Skull, 
+  Save, 
+  Folder, 
+  Zap, 
+  Download, 
+  AlertTriangle,
+  Terminal as TerminalIcon,
+  ShieldAlert,
+  History
+} from "lucide-react";
+
 
 interface CaseRecord {
   id: string;
@@ -25,8 +41,12 @@ interface AnalysisResult {
   id: string;
   filename: string;
   hash: string;
+  hash_md5: string;
   size: string;
   status: string;
+  threat_level: string;
+  magic_signature: string;
+  findings: string;
 }
 
 function buildChartData(cases: CaseRecord[]) {
@@ -114,13 +134,14 @@ export default function DashboardPage() {
   };
 
   const forensicTools = [
-    { name: "EnCase", cat: "Disk Analysis", icon: "🔍", id: "tool-encase" },
-    { name: "Wireshark", cat: "Network Packets", icon: "🦈", id: "tool-wireshark" },
-    { name: "Autopsy", cat: "Digital Investigation", icon: "💀", id: "tool-autopsy" },
-    { name: "FTK Imager", cat: "Evidence Acquisition", icon: "💾", id: "tool-ftk-imager" },
-    { name: "Data Recovery", cat: "Recuva / Stellar", icon: "📂", id: "tool-data-recovery" },
-    { name: "Automated Flow", cat: "End-to-End AI", icon: "⚡", special: true, id: "tool-automated-flow" },
+    { name: "EnCase", cat: "Disk Analysis", icon: <Search className="w-6 h-6 text-blue-400" />, id: "tool-encase" },
+    { name: "Wireshark", cat: "Network Packets", icon: <Fish className="w-6 h-6 text-cyan-400" />, id: "tool-wireshark" },
+    { name: "Autopsy", cat: "Digital Investigation", icon: <Skull className="w-6 h-6 text-slate-400" />, id: "tool-autopsy" },
+    { name: "FTK Imager", cat: "Evidence Acquisition", icon: <Save className="w-6 h-6 text-emerald-400" />, id: "tool-ftk-imager" },
+    { name: "Data Recovery", cat: "Recuva / Stellar", icon: <Folder className="w-6 h-6 text-amber-400" />, id: "tool-data-recovery" },
+    { name: "Automated Flow", cat: "End-to-End AI", icon: <Zap className="w-6 h-6 text-yellow-400" />, special: true, id: "tool-automated-flow" },
   ];
+
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -173,8 +194,12 @@ export default function DashboardPage() {
           id: `DEMO-${Math.floor(Math.random() * 1000)}`,
           filename: file.name,
           hash: "SHA256: 7e8a...3f12",
+          hash_md5: "MD5: d41d...8cd9",
           size: "N/A",
           status: "Offline Report",
+          threat_level: "Neutral",
+          magic_signature: "Simulated Artifact",
+          findings: "System offline. Using heuristic fallback logic."
         });
       } finally {
         setTimeout(() => setIsAnalyzing(false), 2000);
@@ -196,12 +221,14 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
       <header className="flex justify-between items-start mb-10 border-b border-slate-800 pb-6">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+            <TerminalIcon className="w-6 h-6 text-emerald-500" />
             Workstation:{" "}
             <span className="text-emerald-400 font-mono">
               AGENT_{session?.user?.name?.toUpperCase() || "INTEL"}
             </span>
           </h1>
+
           <p className="text-slate-500 text-[10px] mt-1 font-mono uppercase tracking-[0.2em] flex items-center gap-2">
             <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
             Status: Monitoring Global Threats
@@ -243,16 +270,20 @@ export default function DashboardPage() {
         className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
       >
         {[
-          { label: "Total Cases", value: stats.total, color: "text-emerald-400", border: "border-emerald-500/20" },
-          { label: "Pending", value: stats.pending, color: "text-yellow-400", border: "border-yellow-500/20" },
-          { label: "Verified", value: stats.verified, color: "text-blue-400", border: "border-blue-500/20" },
-          { label: "Reports Generated", value: stats.reportsGenerated, color: "text-purple-400", border: "border-purple-500/20" },
+          { label: "Total Cases", value: stats.total, color: "text-emerald-400", border: "border-emerald-500/20", icon: <History className="w-4 h-4" /> },
+          { label: "Pending", value: stats.pending, color: "text-yellow-400", border: "border-yellow-500/20", icon: <ShieldAlert className="w-4 h-4" /> },
+          { label: "Verified", value: stats.verified, color: "text-blue-400", border: "border-blue-500/20", icon: <Zap className="w-4 h-4" /> },
+          { label: "Reports Generated", value: stats.reportsGenerated, color: "text-purple-400", border: "border-purple-500/20", icon: <Save className="w-4 h-4" /> },
         ].map((stat) => (
-          <div key={stat.label} className={`bg-slate-900 border ${stat.border} rounded-xl p-4 text-center`}>
-            <p className="text-[10px] uppercase text-slate-500 font-bold tracking-widest mb-2">{stat.label}</p>
+          <div key={stat.label} className={`bg-slate-900 border ${stat.border} rounded-xl p-4 text-center group hover:bg-slate-800 transition-all`}>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className={stat.color}>{stat.icon}</span>
+              <p className="text-[10px] uppercase text-slate-500 font-bold tracking-widest">{stat.label}</p>
+            </div>
             <p className={`text-3xl font-mono font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
+
       </motion.section>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -343,9 +374,10 @@ export default function DashboardPage() {
                     : "border-emerald-500/30 bg-slate-900/90 text-emerald-300 shadow-sm shadow-emerald-500/10 hover:border-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-100 active:scale-[0.98]"
                 }`}
               >
-                <span className="text-[12px]">⬇️</span>
+                <Download className="w-3 h-3" />
                 <span>{csvButtonLabel}</span>
               </button>
+
             </div>
 
             <AnimatePresence>
@@ -389,9 +421,10 @@ export default function DashboardPage() {
             )}
 
             {fetchError && (
-              <p className="text-red-400 text-xs font-mono mb-4 border border-red-500/20 bg-red-500/10 rounded-lg px-3 py-2">
-                ⚠ {fetchError}
+              <p className="text-red-400 text-xs font-mono mb-4 border border-red-500/20 bg-red-500/10 rounded-lg px-3 py-2 flex items-center gap-2">
+                <AlertTriangle className="w-3 h-3" /> {fetchError}
               </p>
+
             )}
 
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
@@ -399,35 +432,49 @@ export default function DashboardPage() {
                 {caseHistory.map((item) => (
                   <motion.div
                     key={item.id}
-                    className="flex justify-between items-center p-3 bg-slate-950/50 border border-slate-800 rounded-lg text-[12px] group hover:border-emerald-500/30 transition-colors"
+                    className="flex flex-col p-4 bg-slate-950/50 border border-slate-800 rounded-xl text-[12px] group hover:border-emerald-500/30 transition-all gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-emerald-500 opacity-50 font-mono">ID_{item.case_id?.slice(0, 5)}</span>
-                      <span className="font-mono text-slate-300 truncate max-w-[150px]">{item.filename}</span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <span className="text-emerald-500 font-mono font-bold">ID_{item.case_id?.slice(0, 8)}</span>
+                        <span className="font-mono text-slate-200 font-medium truncate max-w-[200px]">{item.filename}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full font-mono uppercase border ${
+                            item.status?.toLowerCase() === "verified"
+                              ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
+                              : "text-yellow-400 bg-yellow-500/10 border-yellow-500/30"
+                          }`}
+                        >
+                          {item.status || "Unknown"}
+                        </span>
+                        <button
+                          onClick={() => generateForensicReport(item)}
+                          className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-3 py-1.5 rounded-lg border border-emerald-500/20 text-[10px] font-bold uppercase transition-all"
+                        >
+                          Export PDF
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-slate-600 font-mono text-[10px] hidden md:block">
-                        {item.hash_value.slice(0, 16)}...
-                      </span>
-
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase border ${
-                          item.status?.toLowerCase() === "verified"
-                            ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
-                            : item.status?.toLowerCase() === "pending"
-                            ? "text-yellow-400 bg-yellow-500/10 border-yellow-500/30"
-                            : "text-slate-400 bg-slate-700/30 border-slate-600/30"
-                        }`}
-                      >
-                        {item.status || "Unknown"}
-                      </span>
-                      
-                      <button
-                        onClick={() => generateForensicReport(item)}
-                        className="opacity-0 group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-3 py-1 rounded border border-emerald-500/20 text-[10px] font-bold uppercase"
-                      >
-                        Export PDF
-                      </button>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-900">
+                      <div className="space-y-1">
+                        <p className="text-[9px] text-slate-500 uppercase font-bold tracking-widest">SHA-256 Signature</p>
+                        <p className="font-mono text-slate-400 text-[10px] break-all bg-slate-900/50 p-2 rounded border border-slate-800/50">
+                          {item.hash_value}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                         <div className="flex justify-between items-center">
+                           <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Investigator</span>
+                           <span className="text-slate-300 font-mono text-[10px]">{item.investigator}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                           <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Timestamp</span>
+                           <span className="text-slate-300 font-mono text-[10px]">{new Date(item.created_at).toLocaleString()}</span>
+                         </div>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -437,7 +484,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="sticky top-6">
+          <div className="sticky top-6 space-y-6">
+            <ThreatIntelligenceFeed />
             <ForensicTerminal />
             <div className="mt-6">
               <RobotAssistant />

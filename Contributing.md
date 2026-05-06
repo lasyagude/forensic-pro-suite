@@ -41,7 +41,7 @@ Your help makes this project better for everyone.
 7. **Open a Pull Request**
    - Describe what you changed and why.
    - Reference any related issues.
-  
+
 ### Code Style
 - Use clear and consistent naming conventions.
 - Keep functions small and focused.
@@ -54,6 +54,6 @@ Your help makes this project better for everyone.
 
 ### Legal / License
 
-By contributing to this repository, you agree that your contributions will be licensed under the terms of the [MIT License](LICENSE).
+By contributing to this repository, you agree that your contributions will be licensed under the terms of the [Apache License 2.0](LICENSE.md).
 
 All contributions should be original work or properly credited if derived from other sources.

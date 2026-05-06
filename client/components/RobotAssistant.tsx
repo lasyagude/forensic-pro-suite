@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TutorialOverlay from "./TutorialOverlay";
 
+import { Bot, Info } from "lucide-react";
+
 const lessons = [
-  { title: "Welcome", text: "Investigator, I am your Forensic Assistant. I'll guide you through the 6 stages of digital investigation.", targetId: undefined },
-  { title: "Step 1: Identification", text: "Theory: We identify evidence by its Hash (Digital DNA). Practical: The 'Automated Flow' card uses SHA-256 hashing to ensure data hasn't been tampered with.", targetId: "tool-automated-flow" },
-  { title: "Step 2: Preservation", text: "Theory: We never touch the original file. Practical: Use FTK Imager to create a bit-for-bit forensic image (E01) for safe analysis.", targetId: "tool-ftk-imager" },
-  { title: "Step 3: Collection", text: "Theory: We extract metadata (dates, times, authors). Practical: The backend Python engine pulls this data automatically when you start the flow.", targetId: "tool-automated-flow" },
-  { title: "Step 4: Examination", text: "Theory: We look for hidden or deleted files. Practical: Autopsy is your best tool here to parse raw data into readable files.", targetId: "tool-autopsy" },
-  { title: "Final Step: Reporting", text: "Theory: Every action must be documented for court. Practical: Click 'Automated Flow' to generate a full PDF report of your findings.", targetId: "tool-automated-flow" },
+  { title: "Welcome", text: "Investigator, I am your Forensic Assistant. This workstation has been significantly upgraded for high-fidelity triage.", targetId: undefined },
+  { title: "Enhanced Identification", text: "Dual-Hash verification is active. We now verify integrity using BOTH SHA-256 and MD5 simultaneously for zero-collision confidence.", targetId: "tool-automated-flow" },
+  { title: "Deep Forensic Analysis", text: "Beyond just extension checks, the system performs Magic Number (Signature) verification to detect spoofed files and hidden executables.", targetId: "tool-automated-flow" },
+  { title: "Advanced Metadata", text: "We now extract deep artifact data including accessed timestamps, permissions, and threat levels, thanks to the engine overhaul.", targetId: "tool-automated-flow" },
+  { title: "Final Step: Reporting", text: "The reporting logic now includes these advanced metrics. Click 'Automated Flow' to generate a comprehensive PDF report.", targetId: "tool-automated-flow" },
 ];
 
 export default function RobotAssistant() {
@@ -78,7 +79,7 @@ export default function RobotAssistant() {
               onClick={handleReset}
               className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-4xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer"
             >
-              🤖
+              <Bot className="w-10 h-10 text-white" />
             </motion.div>
           </motion.div>
         )}

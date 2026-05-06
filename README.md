@@ -1,19 +1,58 @@
-# 🛡️ Sentinel-Forensics: AI-Augmented Digital Investigation Suite
+# 🛡️ Forensic Pro Suite: AI-Augmented Digital Investigation Suite
 
-A full-stack Digital Forensics Workstation for automated artifact extraction, geospatial threat triage, and chain-of-custody documentation.
+A high-fidelity Digital Forensics Workstation enhanced for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
+
+## 🌟 Advanced Forensic Enhancements (The "Strong" Version)
+
+This version has been overhauled to provide military-grade forensic reliability:
+
+*   **⚡ Dual-Hash Integrity Pipeline:** Implemented simultaneous SHA-256 and MD5 hashing for every artifact to ensure zero-collision data integrity.
+*   **🔍 Magic Number (File Signature) Analysis:** Added deep header inspection to detect extension spoofing and hidden executables disguised as documents.
+*   **📡 Live Threat Intelligence Feed:** Integrated a real-time (simulated) global threat monitoring dashboard for constant situational awareness.
+*   **🛡️ Heuristic Threat Assessment:** Automated classification of evidence risk levels (Neutral vs. Elevated) based on signature verification.
+*   **📂 Advanced Metadata Extraction:** Expanded the Python `ForensicEngine` to capture OS-level artifacts like file permissions and last-accessed timestamps.
+*   **🤖 Upgraded Forensic Assistant:** Re-trained the interactive AI guide to support advanced triage methodology.
+
+---
+
+## 📖 Navigation
+
+*   **[🚀 Full Setup Guide](./SETUP.md)**
+*   **[🌍 Deployment Guide](./SETUP.md#deployment-guide)**
+*   **[🤝 Contributing](./Contributing.md)**
+*   **[⚖️ License](./LICENSE.md)**
+
+---
 
 ## 🚀 Key Features
 
 * **Secure Investigator Portal:** NextAuth.js credential-based login with session management.
-* **Automated Triage Pipeline:** FastAPI backend performs SHA-256 integrity hashing and file metadata extraction via a `ForensicEngine` class.
-* **Persistent Evidence Vault:** Case records stored in Supabase (PostgreSQL) with RLS, linked to the authenticated investigator's email.
-* **Geospatial Threat Attribution:** Interactive zoomable world map (React-Simple-Maps + D3-Geo) plotting 6 simulated threat nodes with severity-coded markers.
-* **Forensic Tool Dashboard:** Cards for EnCase, Wireshark, Autopsy, FTK Imager, and Data Recovery — plus the live **Automated Flow** trigger.
-* **Analysis Logs:** Real-time animated log stream displayed during file processing.
-* **Interactive Forensic Assistant:** Framer Motion robot widget with a 6-step guided tutorial (progress persisted via `localStorage`).
-* **Xterm.js Terminal:** Embedded browser-based CLI for manual triage commands.
-* **PDF Report Generation:** Client-side chain-of-custody reports via jsPDF + jspdf-autotable, exported per case record.
-* **Case Volume Chart:** Recharts bar chart showing case activity over the last 7 days, live in the dashboard.
+* **Automated Triage Pipeline:** FastAPI backend performs SHA-256 + MD5 integrity hashing and deep metadata extraction.
+* **Persistent Evidence Vault:** Case records stored in Supabase (PostgreSQL) with RLS, linked to the investigator.
+* **Geospatial Threat Attribution:** Interactive world map plotting 6 simulated threat nodes with severity-coded markers.
+* **Forensic Tool Dashboard:** Cards for EnCase, Wireshark, Autopsy, and the **Automated Flow** trigger.
+* **Live Threat Feed:** Real-time log stream of global forensic events.
+* **Investigator CLI (Xterm.js):** A high-fidelity terminal simulation of industry-standard forensic tools (`Autopsy`, `Volatility`, `Wireshark`) for manual triage.
+* **PDF Report Generation:** Enhanced chain-of-custody reports via jsPDF including advanced metrics.
+
+---
+
+## 🖥️ Investigator CLI Commands
+
+The embedded terminal (`investigator_cli_v1`) allows you to simulate high-level forensic triage. Type `help` in the dashboard terminal to see these in action:
+
+| Command | Forensic Function | Simulation Output |
+|---|---|---|
+| `autopsy` | Sleuth Kit Engine | Partition table analysis and deleted file detection. |
+| `wireshark --cli` | Network Triage | Live packet capture simulation with DNS threat detection. |
+| `vol.py --info` | Memory Forensics | Volatility 3 framework output showing suspicious processes. |
+| `fls <image>` | File Listing | Inode and file system record extraction from a disk image. |
+| `mactime` | Timeline Analysis | Temporal evidence visualization (Modified/Accessed/Created). |
+| `clear` | UI Management | Flushes the terminal buffer. |
+
+---
+
+
 
 ## 🛠️ Tech Stack
 
@@ -113,7 +152,7 @@ uvicorn main:app --reload --port 8000
 
 ```bash
 cd client
-npm install
+npm install --legacy-peer-deps
 npm run dev
 ```
 

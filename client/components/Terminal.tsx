@@ -12,19 +12,45 @@ export default function ForensicTerminal() {
 
     const term = new Terminal({
       cursorBlink: true,
-      theme: { background: '#0f172a', foreground: '#10b981' }, // Match slate-950 and emerald-500
+      theme: { background: '#0f172a', foreground: '#10b981' }, 
       fontSize: 14,
       fontFamily: 'Courier New',
+      allowProposedApi: true,
     });
 
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
-    term.open(terminalRef.current);
-    fitAddon.fit();
 
-    term.writeln('--- FORENSIC_PRO_TERMINAL v1.0.4 ---');
-    term.writeln('Type "help" to see available forensic commands.');
-    term.write('\r\n$ ');
+    // Use requestAnimationFrame to ensure the DOM has rendered
+    const initTerminal = () => {
+      if (terminalRef.current && terminalRef.current.offsetHeight > 0) {
+        term.open(terminalRef.current);
+        fitAddon.fit();
+        
+        term.writeln('--- FORENSIC_PRO_TERMINAL v1.0.4 ---');
+        term.writeln('Type "help" to see available forensic commands.');
+        term.write('\r\n$ ');
+      } else {
+        requestAnimationFrame(initTerminal);
+      }
+    };
+
+    requestAnimationFrame(initTerminal);
+
+    // Handle resizing
+    const resizeObserver = new ResizeObserver(() => {
+      try {
+        if (terminalRef.current && terminalRef.current.offsetHeight > 0) {
+          fitAddon.fit();
+        }
+      } catch (e) {
+        console.warn('Terminal resize failed', e);
+      }
+    });
+
+    if (terminalRef.current) {
+      resizeObserver.observe(terminalRef.current);
+    }
 
     let currentLine = '';
     term.onData(e => {
@@ -44,7 +70,10 @@ export default function ForensicTerminal() {
       }
     });
 
-    return () => term.dispose();
+    return () => {
+      resizeObserver.disconnect();
+      term.dispose();
+    };
   }, []);
 
   const handleCommand = (cmd: string, term: Terminal) => {
