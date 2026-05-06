@@ -128,7 +128,7 @@ Use the default credentials to log in to the dashboard:
     - `NEXT_PUBLIC_API_URL`: Your **Render URL** (e.g., `https://forensic-pro-backend.onrender.com`).
     - `NEXTAUTH_URL`: Your **Vercel URL**.
     - `NEXTAUTH_SECRET`: A random string (generate with `openssl rand -base64 32`).
-    - `ADMIN_EMAIL`: Your login email.
-    - `ADMIN_PASSWORD`: Your login password.
+    - `ADMIN_EMAIL`: `admin@forensics.com`
+    - `ADMIN_PASSWORD`: `password123`
 
 ---
