@@ -39,7 +39,7 @@ export default function LoginPage() {
                 <Terminal className="w-8 h-8 text-emerald-500" />
              </div>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Forensics Pro Suite</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Forensic Pro Suite</h1>
           <p className="text-slate-500 text-[10px] mt-1 font-mono uppercase tracking-[0.2em]">Secure Investigator Portal</p>
         </div>
 

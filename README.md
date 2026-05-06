@@ -1,4 +1,4 @@
-# 🛡️ Sentinel-Forensics: AI-Augmented Digital Investigation Suite
+# 🛡️ Forensic Pro Suite: AI-Augmented Digital Investigation Suite
 
 A high-fidelity Digital Forensics Workstation enhanced for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
 

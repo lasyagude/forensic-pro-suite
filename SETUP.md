@@ -1,4 +1,4 @@
-# 🚀 Forensic-Pro-Suite Setup Guide
+# 🚀 Forensic Pro Suite Setup Guide
 
 This guide will walk you through setting up the project from scratch, including Supabase configuration and running both the frontend and backend.
 
