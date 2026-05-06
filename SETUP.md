@@ -112,7 +112,7 @@ Use the default credentials to log in to the dashboard:
 8.  **Environment Variables**:
     - `SUPABASE_URL`: Your Supabase URL.
     - `SUPABASE_ANON_KEY`: Your Supabase Anon Key.
-    - `ALLOWED_ORIGIN`: `https://forensic-pro-suite-new.vercel.app`
+    - `ALLOWED_ORIGIN`: Your **Vercel URL** (e.g., `https://your-app.vercel.app`).
 
 ### 2. Frontend (Vercel)
 1.  Sign in to [Vercel](https://vercel.com).
@@ -125,8 +125,8 @@ Use the default credentials to log in to the dashboard:
 8.  **Environment Variables**:
     - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase URL.
     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase Anon Key.
-    - `NEXT_PUBLIC_API_URL`: `https://forensicprosuite-backend.onrender.com`
-    - `NEXTAUTH_URL`: `https://forensic-pro-suite-new.vercel.app`
+    - `NEXT_PUBLIC_API_URL`: Your **Render URL** (e.g., `https://forensic-pro-backend.onrender.com`).
+    - `NEXTAUTH_URL`: Your **Vercel URL**.
     - `NEXTAUTH_SECRET`: A random string (generate with `openssl rand -base64 32`).
     - `ADMIN_EMAIL`: `admin@forensics.com`
     - `ADMIN_PASSWORD`: `password123`
