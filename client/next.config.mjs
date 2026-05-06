@@ -1,3 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = { experimental: { turbo: { enabled: false } } };
+const nextConfig = {
+    // Production build optimizations
+    reactStrictMode: true,
+};
+
 export default nextConfig;

@@ -120,7 +120,9 @@ Use the default credentials to log in to the dashboard:
 3.  Connect your GitHub repository.
 4.  **Root Directory**: `client`
 5.  **Framework Preset**: `Next.js`
-6.  **Environment Variables**:
+6.  **Build Command**: `npm run build`
+7.  **Output Directory**: `.next` (Vercel detects this automatically)
+8.  **Environment Variables**:
     - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase URL.
     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase Anon Key.
     - `NEXT_PUBLIC_API_URL`: Your **Render URL** (e.g., `https://forensic-pro-backend.onrender.com`).
