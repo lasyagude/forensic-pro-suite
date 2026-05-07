@@ -19,7 +19,11 @@ export default function RobotAssistant() {
 
   useEffect(() => {
     const savedStep = localStorage.getItem("forensic_robot_step");
-    if (savedStep) setStep(parseInt(savedStep));
+    const parsedStep = savedStep ? parseInt(savedStep, 10) : 0;
+
+    queueMicrotask(() => {
+      setStep(parsedStep);
+    });
     const timer = setTimeout(() => setIsVisible(true), 1500);
     return () => clearTimeout(timer);
   }, []);
