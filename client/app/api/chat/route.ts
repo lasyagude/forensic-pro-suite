@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (geminiKey) {
       try {
         const genAI = new GoogleGenerativeAI(geminiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         interface ChatMessage { role: string; content: string; }
         let formattedHistory = messages.slice(0, -1).map((msg: ChatMessage) => ({
@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
         const responseText = result.response.text();
 
         return NextResponse.json({ response: responseText, provider: "gemini" });
-      } catch (geminiError) {
-        console.warn("Gemini API failed, falling back to Groq if available", geminiError);
+      } catch (geminiError: any) {
+        console.warn("Gemini API failed, falling back to Groq if available:", geminiError?.message || geminiError);
         // Fallback to Groq if available
         if (!groqKey) {
           throw geminiError;
