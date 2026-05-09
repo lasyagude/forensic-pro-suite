@@ -16,6 +16,8 @@ import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
+import ThemeToggle from "@/components/ThemeToggle";
+import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, LayoutDashboard, Database } from "lucide-react";
 
 interface CaseRecord {
   id: string;
@@ -120,12 +122,12 @@ export default function DashboardPage() {
   };
 
   const forensicTools = [
-    { name: "EnCase", cat: "Disk Analysis", icon: "🔍", id: "tool-encase" },
-    { name: "Wireshark", cat: "Network Packets", icon: "🦈", id: "tool-wireshark" },
-    { name: "Autopsy", cat: "Digital Investigation", icon: "💀", id: "tool-autopsy" },
-    { name: "FTK Imager", cat: "Evidence Acquisition", icon: "💾", id: "tool-ftk-imager" },
-    { name: "Data Recovery", cat: "Recuva / Stellar", icon: "📂", id: "tool-data-recovery" },
-    { name: "Automated Flow", cat: "End-to-End AI", icon: "⚡", special: true, id: "tool-automated-flow" },
+    { name: "EnCase", cat: "Disk Analysis", icon: <Search className="w-6 h-6 text-blue-400" />, id: "tool-encase" },
+    { name: "Wireshark", cat: "Network Packets", icon: <Activity className="w-6 h-6 text-emerald-400" />, id: "tool-wireshark" },
+    { name: "Autopsy", cat: "Digital Investigation", icon: <Skull className="w-6 h-6 text-red-400" />, id: "tool-autopsy" },
+    { name: "FTK Imager", cat: "Evidence Acquisition", icon: <Save className="w-6 h-6 text-purple-400" />, id: "tool-ftk-imager" },
+    { name: "Data Recovery", cat: "Recuva / Stellar", icon: <Folder className="w-6 h-6 text-amber-400" />, id: "tool-data-recovery" },
+    { name: "Automated Flow", cat: "End-to-End AI", icon: <Zap className="w-6 h-6 text-emerald-400" />, special: true, id: "tool-automated-flow" },
   ];
 
   useEffect(() => {
@@ -199,10 +201,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
-      <header className="flex justify-between items-start mb-10 border-b border-slate-800 pb-6">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 font-sans transition-colors duration-300">
+      <header className="flex justify-between items-start mb-10 border-b border-slate-200 dark:border-slate-800 pb-6">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Workstation:{" "}
             <span className="text-emerald-400 font-mono">
               AGENT_{session?.user?.name?.toUpperCase() || "INTEL"}
@@ -215,12 +217,13 @@ export default function DashboardPage() {
         </motion.div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:block bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
-            <p className="text-[8px] uppercase text-slate-500 font-bold tracking-widest mb-1">Archive Size</p>
-            <p className="text-xl font-mono text-emerald-400">{caseHistory.length}</p>
+          <ThemeToggle />
+          <div className="hidden md:block bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-xl text-center">
+            <p className="text-[8px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-1">Archive Size</p>
+            <p className="text-xl font-mono text-emerald-600 dark:text-emerald-400">{caseHistory.length}</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-2 rounded-xl flex items-center gap-3">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 rounded-xl flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold">
               {session?.user?.name?.[0] || "A"}
             </div>
@@ -254,8 +257,8 @@ export default function DashboardPage() {
           { label: "Verified", value: stats.verified, color: "text-blue-400", border: "border-blue-500/20" },
           { label: "Reports Generated", value: stats.reportsGenerated, color: "text-purple-400", border: "border-purple-500/20" },
         ].map((stat) => (
-          <div key={stat.label} className={`bg-slate-900 border ${stat.border} rounded-xl p-4 text-center`}>
-            <p className="text-[10px] uppercase text-slate-500 font-bold tracking-widest mb-2">{stat.label}</p>
+          <div key={stat.label} className={`bg-slate-50 dark:bg-slate-900 border ${stat.border} rounded-xl p-4 text-center shadow-sm`}>
+            <p className="text-[10px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-2">{stat.label}</p>
             <p className={`text-3xl font-mono font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
@@ -272,13 +275,13 @@ export default function DashboardPage() {
                 transition={{ delay: index * 0.05 }}
                 id={tool.id}
                 onClick={tool.special ? runAutomatedFlow : undefined}
-                className={`bg-slate-900 border ${tool.special ? "border-emerald-500/50" : "border-slate-800"} p-4 rounded-xl cursor-pointer hover:bg-slate-800 transition-all relative overflow-hidden group min-h-[120px]`}
+                className={`bg-slate-50 dark:bg-slate-900 border ${tool.special ? "border-emerald-500/50" : "border-slate-200 dark:border-slate-800"} p-4 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative overflow-hidden group min-h-[120px] shadow-sm`}
               >
                 {tool.special && isAnalyzing && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="absolute inset-0 bg-slate-900/95 z-20 p-3 flex flex-col justify-between"
+                    className="absolute inset-0 bg-white/95 dark:bg-slate-900/95 z-20 p-3 flex flex-col justify-between"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -289,7 +292,7 @@ export default function DashboardPage() {
                     <AnalysisLogs />
                   </motion.div>
                 )}
-                <div className="text-2xl mb-2">{tool.icon}</div>
+                <div className="mb-2">{tool.icon}</div>
                 <h3 className="text-sm font-bold text-white">{tool.name}</h3>
                 <p className="text-[10px] text-slate-500">{tool.cat}</p>
               </motion.div>
@@ -303,7 +306,7 @@ export default function DashboardPage() {
             <motion.section
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6"
+              className="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm"
             >
               <h2 className="text-xs font-bold text-slate-400 font-mono uppercase tracking-widest mb-6">
                 Case Volume (Last 7 Days)
@@ -328,10 +331,10 @@ export default function DashboardPage() {
           )}
 
           {/* Database Records */}
-          <motion.section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+          <motion.section className="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
               <div className="min-w-0">
-                <h2 className="text-xs font-bold text-slate-400 font-mono uppercase tracking-widest">
+                <h2 className="text-xs font-bold text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest">
                   Database Records
                 </h2>
                 {!hasLiveRecords && (
@@ -349,7 +352,7 @@ export default function DashboardPage() {
                     : "border-emerald-500/30 bg-slate-900/90 text-emerald-300 shadow-sm shadow-emerald-500/10 hover:border-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-100 active:scale-[0.98]"
                 }`}
               >
-                <span className="text-[12px]">⬇️</span>
+                <Download className="w-3.5 h-3.5" />
                 <span>{csvButtonLabel}</span>
               </button>
             </div>
@@ -395,8 +398,8 @@ export default function DashboardPage() {
             )}
 
             {fetchError && (
-              <p className="text-red-400 text-xs font-mono mb-4 border border-red-500/20 bg-red-500/10 rounded-lg px-3 py-2">
-                ⚠ {fetchError}
+              <p className="text-red-400 text-xs font-mono mb-4 border border-red-500/20 bg-red-500/10 rounded-lg px-3 py-2 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" /> {fetchError}
               </p>
             )}
 
@@ -405,7 +408,7 @@ export default function DashboardPage() {
                 {caseHistory.map((item) => (
                   <motion.div
                     key={item.id}
-                    className="flex justify-between items-center p-3 bg-slate-950/50 border border-slate-800 rounded-lg text-[12px] group hover:border-emerald-500/30 transition-colors"
+                    className="flex justify-between items-center p-3 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-emerald-500 opacity-50 font-mono">ID_{item.case_id?.slice(0, 5)}</span>

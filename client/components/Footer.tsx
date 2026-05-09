@@ -4,7 +4,7 @@ import { Shield, FileText, Scale, BookOpen } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="mt-20 border-t border-slate-800 bg-slate-950 py-12 px-6">
+    <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-12 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="flex flex-col items-center md:items-start gap-2">
           <div className="flex items-center gap-2 text-emerald-400 font-bold tracking-tighter">
