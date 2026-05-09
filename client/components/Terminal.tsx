@@ -8,8 +8,8 @@ import { useTheme } from "next-themes";
 
 export default function ForensicTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -173,7 +173,7 @@ export default function ForensicTerminal() {
       resizeObserver.disconnect();
       term.dispose();
     };
-  }, [theme]);
+  }, [resolvedTheme]);
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm">
@@ -186,7 +186,10 @@ export default function ForensicTerminal() {
         </span>
       </div>
 
-      <div ref={terminalRef} className="h-64 rounded-lg overflow-hidden" />
+      <div 
+        ref={terminalRef} 
+        className={`h-64 rounded-lg overflow-hidden ${isDark ? "bg-[#0f172a]" : "bg-white"}`} 
+      />
     </div>
   );
 }
