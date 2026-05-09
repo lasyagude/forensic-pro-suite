@@ -9,22 +9,7 @@ import { useTheme } from "next-themes";
 export default function ForensicTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = useState(true);
-
-  useEffect(() => {
-    const checkTheme = () => {
-      const isDarkTheme = document.documentElement.classList.contains("dark") || resolvedTheme === "dark";
-      setIsDark(isDarkTheme);
-    };
-
-    checkTheme();
-    
-    // Also watch for class changes on html
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-
-    return () => observer.disconnect();
-  }, [resolvedTheme]);
+  const isDark = true; // Always dark for terminal for professional forensic look
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -192,31 +177,22 @@ export default function ForensicTerminal() {
     };
   }, []);
 
-  // Update theme without re-initializing
-  useEffect(() => {
-    if (termInstance.current) {
-      termInstance.current.options.theme = {
-        background: isDark ? "#0f172a" : "#ffffff",
-        foreground: isDark ? "#10b981" : "#059669",
-        cursor: isDark ? "#10b981" : "#059669",
-      };
-    }
-  }, [isDark]);
+
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm">
-      <div className="flex items-center gap-2 mb-3 px-2">
+    <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 mt-8 shadow-2xl">
+      <div className="flex items-center gap-2 mb-3 px-2 border-b border-slate-800/50 pb-2">
         <div className="h-3 w-3 rounded-full bg-red-500/80 shadow-sm shadow-red-500/20"></div>
         <div className="h-3 w-3 rounded-full bg-amber-500/80 shadow-sm shadow-amber-500/20"></div>
         <div className="h-3 w-3 rounded-full bg-emerald-500/80 shadow-sm shadow-emerald-500/20"></div>
-        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono ml-4 uppercase tracking-widest">
+        <span className="text-[10px] text-slate-400 font-mono ml-4 uppercase tracking-widest">
           investigator_cli_v1
         </span>
       </div>
 
       <div 
         ref={terminalRef} 
-        className={`h-64 rounded-lg overflow-hidden ${isDark ? "bg-[#0f172a]" : "bg-white"}`} 
+        className="h-64 rounded-lg overflow-hidden bg-[#0f172a]" 
       />
     </div>
   );
