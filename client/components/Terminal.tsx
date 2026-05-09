@@ -9,7 +9,20 @@ import { useTheme } from "next-themes";
 export default function ForensicTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const isDark = true; // Always dark for terminal for professional forensic look
+  const [isDark, setIsDark] = useState(true);
+  const termInstance = useRef<Terminal | null>(null);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const isDarkTheme = document.documentElement.classList.contains("dark") || resolvedTheme === "dark";
+      setIsDark(isDarkTheme);
+    };
+
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, [resolvedTheme]);
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -26,30 +39,16 @@ export default function ForensicTerminal() {
         term.writeln("[*] Mounting /dev/sda1 as read-only...");
         term.writeln("[+] Partition table: MBR | 3 partitions found");
         term.writeln("[+] File system: NTFS (offset 2048)");
-        term.writeln(
-          "[!] 4 deleted files recoverable in $Recycle.Bin"
-        );
-        term.writeln(
-          "[+] Scan complete. Open Autopsy GUI for full report."
-        );
+        term.writeln("[!] 4 deleted files recoverable in $Recycle.Bin");
+        term.writeln("[+] Scan complete. Open Autopsy GUI for full report.");
         break;
 
       case "wireshark --cli":
-        term.writeln(
-          "[*] Capturing on eth0 (promiscuous mode)..."
-        );
-        term.writeln(
-          "  Frame 1: 192.168.1.5 -> 8.8.8.8 DNS Query: forensics.gov"
-        );
-        term.writeln(
-          "  Frame 2: 8.8.8.8 -> 192.168.1.5 DNS Response: 142.250.80.46"
-        );
-        term.writeln(
-          "  Frame 3: 192.168.1.5 -> 142.250.80.46 TCP SYN"
-        );
-        term.writeln(
-          "[!] Suspicious outbound connection on port 4444 detected."
-        );
+        term.writeln("[*] Capturing on eth0 (promiscuous mode)...");
+        term.writeln("  Frame 1: 192.168.1.5 -> 8.8.8.8 DNS Query: forensics.gov");
+        term.writeln("  Frame 2: 8.8.8.8 -> 192.168.1.5 DNS Response: 142.250.80.46");
+        term.writeln("  Frame 3: 192.168.1.5 -> 142.250.80.46 TCP SYN");
+        term.writeln("[!] Suspicious outbound connection on port 4444 detected.");
         break;
 
       case "fls":
@@ -58,36 +57,22 @@ export default function ForensicTerminal() {
         term.writeln("r/r 6:    $MFTMirr");
         term.writeln("d/d 11:   $Orphan");
         term.writeln("r/r 128:  evidence.dd");
-        term.writeln(
-          "r/r 129:  suspect_chat_logs.txt (deleted)"
-        );
+        term.writeln("r/r 129:  suspect_chat_logs.txt (deleted)");
         term.writeln("r/r 130:  payload.exe (deleted)");
         break;
 
       case "mactime":
-        term.writeln(
-          "Mon Jan 13 2025 09:14:22 4096 m... d/d 11 /evidence"
-        );
-        term.writeln(
-          "Mon Jan 13 2025 09:15:01 2048 .a.. r/r 128 /evidence/suspect_chat_logs.txt"
-        );
-        term.writeln(
-          "Mon Jan 13 2025 09:15:44 512 mac. r/r 129 /evidence/payload.exe"
-        );
+        term.writeln("Mon Jan 13 2025 09:14:22 4096 m... d/d 11 /evidence");
+        term.writeln("Mon Jan 13 2025 09:15:01 2048 .a.. r/r 128 /evidence/suspect_chat_logs.txt");
+        term.writeln("Mon Jan 13 2025 09:15:44 512 mac. r/r 129 /evidence/payload.exe");
         break;
 
       case "vol.py --info":
         term.writeln("[*] Volatility 3 Framework");
         term.writeln("[+] Profile: Win10x64_19041");
-        term.writeln(
-          "[+] Processes: 87 running | 3 suspicious (cmd.exe, powershell.exe, nc.exe)"
-        );
-        term.writeln(
-          "[!] Network connection: nc.exe -> 185.220.101.47:4444 (ESTABLISHED)"
-        );
-        term.writeln(
-          "[!] Possible reverse shell detected."
-        );
+        term.writeln("[+] Processes: 87 running | 3 suspicious (cmd.exe, powershell.exe, nc.exe)");
+        term.writeln("[!] Network connection: nc.exe -> 185.220.101.47:4444 (ESTABLISHED)");
+        term.writeln("[!] Possible reverse shell detected.");
         break;
 
       case "clear":
@@ -98,13 +83,9 @@ export default function ForensicTerminal() {
         break;
 
       default:
-        term.writeln(
-          `bash: ${command}: command not found. Type "help" for available commands.`
-        );
+        term.writeln(`bash: ${command}: command not found. Type "help" for available commands.`);
     }
   };
-
-  const termInstance = useRef<Terminal | null>(null);
 
   useEffect(() => {
     if (!terminalRef.current) return;
@@ -177,22 +158,30 @@ export default function ForensicTerminal() {
     };
   }, []);
 
-
+  useEffect(() => {
+    if (termInstance.current) {
+      termInstance.current.options.theme = {
+        background: isDark ? "#0f172a" : "#ffffff",
+        foreground: isDark ? "#10b981" : "#059669",
+        cursor: isDark ? "#10b981" : "#059669",
+      };
+    }
+  }, [isDark]);
 
   return (
-    <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 mt-8 shadow-2xl">
-      <div className="flex items-center gap-2 mb-3 px-2 border-b border-slate-800/50 pb-2">
+    <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm">
+      <div className="flex items-center gap-2 mb-3 px-2 border-b border-slate-100 dark:border-slate-800/50 pb-2">
         <div className="h-3 w-3 rounded-full bg-red-500/80 shadow-sm shadow-red-500/20"></div>
         <div className="h-3 w-3 rounded-full bg-amber-500/80 shadow-sm shadow-amber-500/20"></div>
         <div className="h-3 w-3 rounded-full bg-emerald-500/80 shadow-sm shadow-emerald-500/20"></div>
-        <span className="text-[10px] text-slate-400 font-mono ml-4 uppercase tracking-widest">
+        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono ml-4 uppercase tracking-widest">
           investigator_cli_v1
         </span>
       </div>
 
       <div 
         ref={terminalRef} 
-        className="h-64 rounded-lg overflow-hidden bg-[#0f172a]" 
+        className={`h-64 rounded-lg overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f172a]" : "bg-white"}`} 
       />
     </div>
   );
