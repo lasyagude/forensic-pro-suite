@@ -1,48 +1,89 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { messages } = body;
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "API Key not configured" }, { status: 500 });
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
+
+    if (!geminiKey && !groqKey) {
+      return NextResponse.json({ error: "No API Keys configured (Gemini or Groq)" }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
-    interface ChatMessage { role: string; content: string; }
-    const history = messages.slice(0, -1).map((msg: ChatMessage) => ({
-      role: msg.role === "user" ? "user" : "model",
-      parts: [{ text: msg.content }],
-    }));
-    
     const latestMessage = messages[messages.length - 1].content;
-
-    const chat = model.startChat({
-      history,
-      generationConfig: {
-        maxOutputTokens: 1000,
-      },
-    });
-
-    const result = await chat.sendMessage(
-      `You are an intelligent AI assistant built into the Forensic Pro Suite application. 
+    const systemPrompt = `You are an intelligent AI assistant built into the Forensic Pro Suite application. 
       Your purpose is to provide contextual, real-time guidance to users. 
       Help them understand features, guide navigation, clarify processes, and resolve any doubts.
-      Keep responses concise, helpful, and professional.
-      
-      User message: ${latestMessage}`
-    );
-    
-    const responseText = result.response.text();
+      Keep responses concise, helpful, and professional.`;
 
-    return NextResponse.json({ response: responseText });
+    if (geminiKey) {
+      try {
+        const genAI = new GoogleGenerativeAI(geminiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        
+        interface ChatMessage { role: string; content: string; }
+        const history = messages.slice(0, -1).map((msg: ChatMessage) => ({
+          role: msg.role === "user" ? "user" : "model",
+          parts: [{ text: msg.content }],
+        }));
+        
+        const chat = model.startChat({
+          history,
+          generationConfig: {
+            maxOutputTokens: 1000,
+          },
+        });
+
+        const result = await chat.sendMessage(`${systemPrompt}\n\nUser message: ${latestMessage}`);
+        const responseText = result.response.text();
+
+        return NextResponse.json({ response: responseText, provider: "gemini" });
+      } catch (geminiError) {
+        console.warn("Gemini API failed, falling back to Groq if available", geminiError);
+        // Fallback to Groq if available
+        if (!groqKey) {
+          throw geminiError;
+        }
+      }
+    }
+
+    // Groq Fallback
+    if (groqKey) {
+      const groqMessages = [
+        { role: "system", content: systemPrompt },
+        ...messages.map((msg: any) => ({
+          role: msg.role === "model" ? "assistant" : msg.role,
+          content: msg.content
+        }))
+      ];
+
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192", // or any suitable Groq model
+          messages: groqMessages,
+          max_tokens: 1000,
+        })
+      });
+
+      if (!groqResponse.ok) {
+        throw new Error(`Groq API returned ${groqResponse.status}: ${await groqResponse.text()}`);
+      }
+
+      const groqData = await groqResponse.json();
+      const responseText = groqData.choices[0].message.content;
+      
+      return NextResponse.json({ response: responseText, provider: "groq" });
+    }
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("AI Assistant API Error:", error);
     return NextResponse.json(
       { error: "Failed to process the request" },
       { status: 500 }
