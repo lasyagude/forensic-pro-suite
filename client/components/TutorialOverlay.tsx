@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 
 interface Props {
@@ -12,13 +12,26 @@ interface Rect { top: number; left: number; width: number; height: number; }
 export default function TutorialOverlay({ targetId, active }: Props) {
   const [rect, setRect] = useState<Rect | null>(null);
 
-  useEffect(() => {
-    if (!active || !targetId) { setRect(null); return; }
-    const el = document.getElementById(targetId);
-    if (!el) { setRect(null); return; }
-    const r = el.getBoundingClientRect();
-    setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-  }, [active, targetId]);
+useLayoutEffect(() => {
+  if (!active || !targetId) {
+    return;
+  }
+
+  const el = document.getElementById(targetId);
+
+  if (!el) {
+    return;
+  }
+
+  const r = el.getBoundingClientRect();
+// eslint-disable-next-line react-hooks/set-state-in-effect
+  setRect({
+    top: r.top,
+    left: r.left,
+    width: r.width,
+    height: r.height,
+  });
+}, [active, targetId]);
 
   if (!active) return null;
 
