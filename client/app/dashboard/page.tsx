@@ -17,6 +17,7 @@ import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
+import ToolModal from "@/components/ToolModal";
 import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, LayoutDashboard, Database } from "lucide-react";
 
 interface CaseRecord {
@@ -86,6 +87,7 @@ export default function DashboardPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
 
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
@@ -129,6 +131,14 @@ export default function DashboardPage() {
     { name: "Data Recovery", cat: "Recuva / Stellar", icon: <Folder className="w-6 h-6 text-amber-400" />, id: "tool-data-recovery" },
     { name: "Automated Flow", cat: "End-to-End AI", icon: <Zap className="w-6 h-6 text-emerald-400" />, special: true, id: "tool-automated-flow" },
   ];
+
+  const handleToolClick = (tool: any) => {
+    if (tool.special) {
+      runAutomatedFlow();
+    } else {
+      setSelectedTool(tool);
+    }
+  };
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -274,7 +284,7 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
                 id={tool.id}
-                onClick={tool.special ? runAutomatedFlow : undefined}
+                onClick={() => handleToolClick(tool)}
                 className={`bg-slate-50 dark:bg-slate-900 border ${tool.special ? "border-emerald-500/50" : "border-slate-200 dark:border-slate-800"} p-4 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative overflow-hidden group min-h-[120px] shadow-sm`}
               >
                 {tool.special && isAnalyzing && (
@@ -462,6 +472,10 @@ export default function DashboardPage() {
         </div>
       </div>
       <Footer />
+      <ToolModal 
+        tool={selectedTool} 
+        onClose={() => setSelectedTool(null)} 
+      />
     </div>
   );
 }
