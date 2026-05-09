@@ -156,22 +156,7 @@ export default function ToolModal({ tool, onClose }: ToolModalProps) {
                     <p className="text-slate-600 dark:text-emerald-500/80 font-medium">All forensic artifacts have been successfully verified and indexed.</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => {
-                      // Find terminal and write logs
-                      const terminalSection = document.getElementById("forensic-terminal-container");
-                      if (terminalSection) {
-                        terminalSection.scrollIntoView({ behavior: "smooth" });
-                      }
-                      onClose();
-                      // We could trigger a global event here if we wanted to write to terminal
-                    }}
-                    className="flex items-center justify-center gap-3 bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 transition shadow-xl active:scale-[0.98]"
-                  >
-                    <Terminal className="w-5 h-5" />
-                    CLI Audit
-                  </button>
+                <div className="flex justify-center">
                   <button 
                     onClick={() => {
                       const content = `FORENSIC CASE REPORT\n====================\nTool: ${tool.name}\nCategory: ${tool.cat}\nStatus: Verified\nTimestamp: ${new Date().toISOString()}\nIntegrity Hash: SHA-256:${Math.random().toString(36).substring(2, 15)}\n\nTasks Completed:\n${tasks.map(t => `- [x] ${t}`).join("\n")}`;
@@ -185,10 +170,10 @@ export default function ToolModal({ tool, onClose }: ToolModalProps) {
                       document.body.removeChild(a);
                       URL.revokeObjectURL(url);
                     }}
-                    className="flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white py-4 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm active:scale-[0.98]"
+                    className="w-full max-w-sm flex items-center justify-center gap-3 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-500 transition shadow-xl shadow-emerald-500/20 active:scale-[0.98]"
                   >
                     <Download className="w-5 h-5" />
-                    Download Case
+                    Download Forensic Case
                   </button>
                 </div>
               </motion.div>
