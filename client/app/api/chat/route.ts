@@ -25,13 +25,18 @@ export async function POST(req: NextRequest) {
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
         
         interface ChatMessage { role: string; content: string; }
-        const history = messages.slice(0, -1).map((msg: ChatMessage) => ({
+        let formattedHistory = messages.slice(0, -1).map((msg: ChatMessage) => ({
           role: msg.role === "user" ? "user" : "model",
           parts: [{ text: msg.content }],
         }));
         
+        // Gemini requires the first message in history to be from 'user'
+        if (formattedHistory.length > 0 && formattedHistory[0].role === "model") {
+          formattedHistory = formattedHistory.slice(1);
+        }
+        
         const chat = model.startChat({
-          history,
+          history: formattedHistory,
           generationConfig: {
             maxOutputTokens: 1000,
           },
