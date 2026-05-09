@@ -9,20 +9,10 @@ import { useTheme } from "next-themes";
 export default function ForensicTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = useState(true);
+  const isDark = resolvedTheme === "dark";
   const termInstance = useRef<Terminal | null>(null);
 
-  useEffect(() => {
-    const checkTheme = () => {
-      const isDarkTheme = document.documentElement.classList.contains("dark") || resolvedTheme === "dark";
-      setIsDark(isDarkTheme);
-    };
-
-    checkTheme();
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, [resolvedTheme]);
+  // We don't need a separate isDark state, use resolvedTheme directly to avoid sync issues
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -94,8 +84,9 @@ export default function ForensicTerminal() {
       cursorBlink: true,
       theme: {
         background: isDark ? "#0f172a" : "#ffffff",
-        foreground: isDark ? "#10b981" : "#059669",
-        cursor: isDark ? "#10b981" : "#059669",
+        foreground: isDark ? "#10b981" : "#0f172a", // Darker text for light mode
+        cursor: isDark ? "#10b981" : "#0f172a",
+        selectionBackground: isDark ? "rgba(16, 185, 129, 0.3)" : "rgba(15, 23, 42, 0.1)",
       },
       fontSize: 14,
       fontFamily: "Courier New",
@@ -158,12 +149,14 @@ export default function ForensicTerminal() {
     };
   }, []);
 
+  // Update theme without re-initializing to preserve history
   useEffect(() => {
     if (termInstance.current) {
       termInstance.current.options.theme = {
         background: isDark ? "#0f172a" : "#ffffff",
-        foreground: isDark ? "#10b981" : "#059669",
-        cursor: isDark ? "#10b981" : "#059669",
+        foreground: isDark ? "#10b981" : "#0f172a",
+        cursor: isDark ? "#10b981" : "#0f172a",
+        selectionBackground: isDark ? "rgba(16, 185, 129, 0.3)" : "rgba(15, 23, 42, 0.1)",
       };
     }
   }, [isDark]);
