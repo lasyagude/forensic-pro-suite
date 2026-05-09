@@ -119,6 +119,8 @@ export default function ForensicTerminal() {
     }
   };
 
+  const termInstance = useRef<Terminal | null>(null);
+
   useEffect(() => {
     if (!terminalRef.current) return;
 
@@ -136,8 +138,8 @@ export default function ForensicTerminal() {
 
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
+    termInstance.current = term;
 
-    // Use requestAnimationFrame to ensure the DOM has rendered and has height
     const initTerminal = () => {
       if (terminalRef.current && terminalRef.current.offsetHeight > 0) {
         term.open(terminalRef.current);
@@ -153,7 +155,6 @@ export default function ForensicTerminal() {
 
     requestAnimationFrame(initTerminal);
 
-    // Handle resizing
     const resizeObserver = new ResizeObserver(() => {
       try {
         if (terminalRef.current && terminalRef.current.offsetHeight > 0) {
@@ -187,7 +188,19 @@ export default function ForensicTerminal() {
     return () => {
       resizeObserver.disconnect();
       term.dispose();
+      termInstance.current = null;
     };
+  }, []);
+
+  // Update theme without re-initializing
+  useEffect(() => {
+    if (termInstance.current) {
+      termInstance.current.options.theme = {
+        background: isDark ? "#0f172a" : "#ffffff",
+        foreground: isDark ? "#10b981" : "#059669",
+        cursor: isDark ? "#10b981" : "#059669",
+      };
+    }
   }, [isDark]);
 
   return (
