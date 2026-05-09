@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "Expert-level digital forensics workstation with AI guidance",
   icons: {
     icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
