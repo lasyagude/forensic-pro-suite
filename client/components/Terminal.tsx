@@ -9,10 +9,13 @@ import { useTheme } from "next-themes";
 export default function ForensicTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const [mounted, setMounted] = useState(false);
+  const isDark = resolvedTheme === "dark" || !mounted; // Default to dark if not mounted
   const termInstance = useRef<Terminal | null>(null);
 
-  // We don't need a separate isDark state, use resolvedTheme directly to avoid sync issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
