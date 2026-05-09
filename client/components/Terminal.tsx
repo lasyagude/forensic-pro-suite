@@ -9,13 +9,22 @@ import { useTheme } from "next-themes";
 export default function ForensicTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const checkTheme = () => {
+      const isDarkTheme = document.documentElement.classList.contains("dark") || resolvedTheme === "dark";
+      setIsDark(isDarkTheme);
+    };
 
-  const isDark = mounted ? resolvedTheme === "dark" : true; // Default to dark for forensic aesthetic during SSR
+    checkTheme();
+    
+    // Also watch for class changes on html
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
+  }, [resolvedTheme]);
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -179,7 +188,7 @@ export default function ForensicTerminal() {
       resizeObserver.disconnect();
       term.dispose();
     };
-  }, [resolvedTheme]);
+  }, [isDark]);
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm">
@@ -187,7 +196,7 @@ export default function ForensicTerminal() {
         <div className="h-3 w-3 rounded-full bg-red-500/80 shadow-sm shadow-red-500/20"></div>
         <div className="h-3 w-3 rounded-full bg-amber-500/80 shadow-sm shadow-amber-500/20"></div>
         <div className="h-3 w-3 rounded-full bg-emerald-500/80 shadow-sm shadow-emerald-500/20"></div>
-        <span className="text-[10px] text-slate-500 font-mono ml-4 uppercase tracking-widest">
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono ml-4 uppercase tracking-widest">
           investigator_cli_v1
         </span>
       </div>
