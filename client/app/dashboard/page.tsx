@@ -293,7 +293,7 @@ export default function DashboardPage() {
                   </motion.div>
                 )}
                 <div className="mb-2">{tool.icon}</div>
-                <h3 className="text-sm font-bold text-white">{tool.name}</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{tool.name}</h3>
                 <p className="text-[10px] text-slate-500">{tool.cat}</p>
               </motion.div>
             ))}

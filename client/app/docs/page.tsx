@@ -86,10 +86,10 @@ export default function DocsPage() {
           <div className="bg-slate-50 dark:bg-slate-900 border border-emerald-500/20 p-8 rounded-3xl shadow-sm">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Quick Start Guide</h2>
             <ol className="list-decimal list-inside space-y-4 text-slate-400 text-sm">
-              <li>Navigate to the <span className="text-white">Dashboard</span> and verify your investigator status.</li>
-              <li>Select a tool from the primary grid or use the <span className="text-white">Automated Flow</span> for rapid ingestion.</li>
-              <li>Monitor the <span className="text-white">Live Threat Intel</span> feed for real-time updates on your analysis.</li>
-              <li>Export findings via <span className="text-white">PDF Report</span> or <span className="text-white">Evidence Bundle</span> for external documentation.</li>
+              <li>Navigate to the <span className="text-slate-900 dark:text-white">Dashboard</span> and verify your investigator status.</li>
+              <li>Select a tool from the primary grid or use the <span className="text-slate-900 dark:text-white">Automated Flow</span> for rapid ingestion.</li>
+              <li>Monitor the <span className="text-slate-900 dark:text-white">Live Threat Intel</span> feed for real-time updates on your analysis.</li>
+              <li>Export findings via <span className="text-slate-900 dark:text-white">PDF Report</span> or <span className="text-slate-900 dark:text-white">Evidence Bundle</span> for external documentation.</li>
             </ol>
           </div>
         </motion.div>
