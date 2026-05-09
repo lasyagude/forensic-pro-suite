@@ -15,6 +15,7 @@ import AnalysisLogs from "@/components/AnalysisLogs";
 import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
+import Footer from "@/components/Footer";
 
 interface CaseRecord {
   id: string;
@@ -457,6 +458,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

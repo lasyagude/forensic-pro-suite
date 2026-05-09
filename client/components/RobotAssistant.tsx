@@ -57,8 +57,8 @@ export default function RobotAssistant() {
             initial={{ y: 20, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 20, opacity: 0, scale: 0.95 }}
-            className="fixed bottom-32 right-8 w-80 sm:w-96 bg-slate-900 border-2 border-emerald-500 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] z-50 flex flex-col overflow-hidden"
-            style={{ height: "450px", maxHeight: "80vh" }}
+            className="fixed bottom-24 right-8 w-72 sm:w-80 bg-slate-900 border-2 border-emerald-500 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] z-50 flex flex-col overflow-hidden"
+            style={{ height: "400px", maxHeight: "80vh" }}
           >
             {/* Header */}
             <div className="bg-slate-800 p-4 border-b border-emerald-500/30 flex justify-between items-center">
@@ -125,9 +125,9 @@ export default function RobotAssistant() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-4xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
+        className="fixed bottom-6 right-8 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
       >
-        <Bot className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+        <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
       </motion.div>
     </>
   );
