@@ -18,6 +18,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Digital Forensics Pro Suite",
   description: "Expert-level digital forensics workstation with AI guidance",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

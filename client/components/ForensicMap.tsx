@@ -1,6 +1,8 @@
 'use client';
 
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
@@ -20,8 +22,21 @@ const severityColor: Record<string, string> = {
 };
 
 export default function ForensicMap() {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === "dark";
+  const mapFill = isDark ? "#1e293b" : "#e2e8f0";
+  const mapStroke = isDark ? "#334155" : "#cbd5e1";
+  const mapHover = isDark ? "#334155" : "#cbd5e1";
+  const labelFill = isDark ? "#94a3b8" : "#64748b";
+
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+    <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xs font-bold text-slate-400 font-mono uppercase tracking-widest">
           Geospatial Threat Attribution
@@ -36,7 +51,7 @@ export default function ForensicMap() {
         </div>
       </div>
 
-      <div className="w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+      <div className="w-full rounded-xl overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-inner">
         <ComposableMap
           projection="geoMercator"
           style={{ width: '100%', height: '320px' }}
@@ -49,10 +64,14 @@ export default function ForensicMap() {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill="#1e293b"
-                    stroke="#334155"
+                    fill={mounted ? mapFill : "#1e293b"}
+                    stroke={mounted ? mapStroke : "#334155"}
                     strokeWidth={0.5}
-                    style={{ default: { outline: 'none' }, hover: { outline: 'none', fill: '#334155' }, pressed: { outline: 'none' } }}
+                    style={{ 
+                      default: { outline: 'none' }, 
+                      hover: { outline: 'none', fill: mounted ? mapHover : "#334155" }, 
+                      pressed: { outline: 'none' } 
+                    }}
                   />
                 ))
               }
@@ -65,7 +84,7 @@ export default function ForensicMap() {
                 <text
                   textAnchor="middle"
                   y={-12}
-                  style={{ fontFamily: 'monospace', fontSize: '8px', fill: '#94a3b8' }}
+                  style={{ fontFamily: 'monospace', fontSize: '8px', fill: mounted ? labelFill : "#94a3b8" }}
                 >
                   {actor.name}
                 </text>

@@ -29,7 +29,7 @@ export default function ThreatIntelligenceFeed() {
   }, []);
 
   return (
-    <div className="bg-slate-900/80 border border-emerald-500/20 rounded-2xl p-5 font-mono shadow-inner">
+    <div className="bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200 dark:border-emerald-500/20 rounded-2xl p-5 font-mono shadow-sm">
       <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
         <h3 className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
@@ -45,7 +45,7 @@ export default function ThreatIntelligenceFeed() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="text-[9px] text-slate-400 border-l border-slate-800 pl-3 leading-relaxed"
+              className="text-[9px] text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-3 leading-relaxed"
             >
               <span className="text-emerald-600 mr-2">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
               {log}
