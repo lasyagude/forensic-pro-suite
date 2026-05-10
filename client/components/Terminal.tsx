@@ -100,40 +100,9 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     termInstance.current = term;
 
     let initTimeout: NodeJS.Timeout;
-    const checkInterval = setInterval(() => {
-      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !initialized.current === false) {
-        clearInterval(checkInterval);
-        
-        try {
-          term.open(terminalRef.current);
-          
-          initTimeout = setTimeout(() => {
-            if (termInstance.current && terminalRef.current && terminalRef.current.offsetParent) {
-              try {
-                fitAddon.fit();
-                termInstance.current.focus();
-                termInstance.current.writeln("\x1b[1;32m--- FORENSIC_PRO_TERMINAL v1.0.4 ---\x1b[0m");
-                termInstance.current.writeln('Type "help" to see available forensic commands.');
-                termInstance.current.write("\r\n$ ");
-              } catch (e) {}
-            }
-          }, 100);
-        } catch (e) {
-          // Fallback if open fails
-        }
-      }
-    }, 50);
-
-    const resizeObserver = new ResizeObserver(() => {
-      if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
-      try {
-        fitAddon.fit();
-      } catch (e) {}
-    });
-    resizeObserver.observe(terminalRef.current);
-
+    let pasteListenerAttached = false;
     let currentLine = "";
-    
+
     // Explicitly handle DOM paste event on the terminal's internal textarea
     const handlePaste = (e: ClipboardEvent) => {
       e.preventDefault();
@@ -145,33 +114,27 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       }
     };
 
-    // Low-level keyboard interceptor to ensure Ctrl+V reaches the paste event
-    term.attachCustomKeyEventHandler((e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && e.type === 'keydown') {
-        // On keydown, we don't handle it, we let the browser fire 'paste'
-        return true; 
-      }
-      return true;
-    });
-
-    const initTimeout = setTimeout(() => {
-      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !initialized.current === false) {
+    const checkInterval = setInterval(() => {
+      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !initialized.current) {
+        clearInterval(checkInterval);
+        
         try {
           term.open(terminalRef.current);
           
-          // Wait for xterm to create its internal textarea
-          setTimeout(() => {
-            const textarea = terminalRef.current?.querySelector(".xterm-helper-textarea");
-            if (textarea) {
-              textarea.addEventListener("paste", handlePaste as any);
-            }
-          }, 100);
-
-          setTimeout(() => {
+          // Wait for xterm to create its internal textarea and perform initial fit
+          initTimeout = setTimeout(() => {
             if (termInstance.current && terminalRef.current && terminalRef.current.offsetParent) {
               try {
                 fitAddon.fit();
                 termInstance.current.focus();
+                
+                // Attach paste listener to the internal textarea
+                const textarea = terminalRef.current.querySelector(".xterm-helper-textarea");
+                if (textarea && !pasteListenerAttached) {
+                  textarea.addEventListener("paste", handlePaste as any);
+                  pasteListenerAttached = true;
+                }
+
                 termInstance.current.writeln("\x1b[1;32m--- FORENSIC_PRO_TERMINAL v1.0.4 ---\x1b[0m");
                 termInstance.current.writeln('Type "help" to see available forensic commands.');
                 termInstance.current.write("\r\n$ ");
@@ -181,6 +144,22 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         } catch (e) {}
       }
     }, 100);
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
+      try {
+        fitAddon.fit();
+      } catch (e) {}
+    });
+    resizeObserver.observe(terminalRef.current);
+
+    // Low-level keyboard interceptor to ensure Ctrl+V reaches the paste event
+    term.attachCustomKeyEventHandler((e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        return true; 
+      }
+      return true;
+    });
 
     const dataDisposable = term.onData((data) => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
