@@ -249,7 +249,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 font-sans transition-colors duration-300">
-      <header className="flex justify-between items-start mb-10 border-b border-slate-200 dark:border-slate-800 pb-6">
+      <header className="flex flex-col md:flex-row justify-between items-center md:items-start mb-10 border-b border-slate-200 dark:border-slate-800 pb-8 gap-8 text-center md:text-left">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Workstation:{" "}
@@ -257,25 +257,25 @@ export default function DashboardPage() {
               AGENT_{session?.user?.name?.toUpperCase() || "INTEL"}
             </span>
           </h1>
-          <p className="text-slate-500 text-[10px] mt-1 font-mono uppercase tracking-[0.2em] flex items-center gap-2">
+          <p className="text-slate-500 text-[10px] mt-1 font-mono uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
             <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
             Status: Monitoring Global Threats
           </p>
         </motion.div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap justify-center items-center gap-4">
           <ThemeToggle />
-          <div className="hidden md:block bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-xl text-center">
-            <p className="text-[8px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-1">Archive Size</p>
-            <p className="text-xl font-mono text-emerald-600 dark:text-emerald-400">{caseHistory.length}</p>
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 md:p-3 rounded-xl text-center min-w-[80px]">
+            <p className="text-[8px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-1">Archive</p>
+            <p className="text-lg md:text-xl font-mono text-emerald-600 dark:text-emerald-400">{caseHistory.length}</p>
           </div>
 
           <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 rounded-xl flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold shrink-0">
               {session?.user?.name?.[0] || "A"}
             </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-slate-300 truncate max-w-[100px]">
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] font-bold text-slate-300 truncate max-w-[80px] sm:max-w-[120px]">
                 {session?.user?.email}
               </span>
               <button
@@ -283,9 +283,9 @@ export default function DashboardPage() {
                   localStorage.removeItem("forensic_robot_step");
                   signOut({ callbackUrl: "/" });
                 }}
-                className="text-[9px] text-red-400 hover:text-red-300 text-left font-mono uppercase tracking-tighter transition-colors"
+                className="text-[9px] text-red-400 hover:text-red-300 font-mono uppercase tracking-tighter transition-colors"
               >
-                Terminate_Session
+                Terminate
               </button>
             </div>
           </div>
@@ -450,24 +450,30 @@ export default function DashboardPage() {
               </p>
             )}
 
-            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
               <AnimatePresence>
                 {caseHistory.map((item) => (
                   <motion.div
                     key={item.id}
-                    className="flex justify-between items-center p-3 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm"
+                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm gap-4"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-emerald-500 opacity-50 font-mono">ID_{item.case_id?.slice(0, 5)}</span>
-                      <span className="font-mono text-slate-300 truncate max-w-[150px]">{item.filename}</span>
+                    <div className="flex flex-col gap-1 w-full sm:w-auto">
+                      <div className="flex items-center gap-3">
+                        <span className="text-emerald-500 opacity-50 font-mono text-[10px]">ID_{item.case_id?.slice(0, 5)}</span>
+                        <span className="font-mono text-slate-900 dark:text-slate-100 truncate max-w-[150px] sm:max-w-[200px]">{item.filename}</span>
+                      </div>
+                      <span className="text-slate-500 font-mono text-[9px] block sm:hidden">
+                        {item.hash_value.slice(0, 24)}...
+                      </span>
                     </div>
-                    <div className="flex items-center gap-4">
+
+                    <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-slate-900">
                       <span className="text-slate-600 font-mono text-[10px] hidden md:block">
                         {item.hash_value.slice(0, 16)}...
                       </span>
 
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase border ${
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full font-mono uppercase border ${
                           item.status?.toLowerCase() === "verified"
                             ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
                             : item.status?.toLowerCase() === "pending"
@@ -478,18 +484,20 @@ export default function DashboardPage() {
                         {item.status || "Unknown"}
                       </span>
                       
-                      <button
-                        onClick={() => generateForensicReport(item)}
-                        className="opacity-0 group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-3 py-1 rounded border border-emerald-500/20 text-[10px] font-bold uppercase"
-                      >
-                        Export PDF
-                      </button>
-                      <button
-  onClick={() => exportEvidenceBundle(item)}
-  className="opacity-0 group-hover:opacity-100 transition-all bg-blue-500/10 hover:bg-blue-500 text-blue-300 hover:text-white px-3 py-1 rounded-lg text-xs font-medium"
->
-  Export Bundle
-</button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => generateForensicReport(item)}
+                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase"
+                        >
+                          PDF
+                        </button>
+                        <button
+                          onClick={() => exportEvidenceBundle(item)}
+                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-blue-500/10 hover:bg-blue-500 text-blue-300 hover:text-white px-2 py-1 rounded border border-blue-500/20 text-[9px] font-bold uppercase"
+                        >
+                          Bundle
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
