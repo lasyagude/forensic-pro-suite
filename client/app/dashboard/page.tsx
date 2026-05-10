@@ -17,7 +17,6 @@ import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import TutorialOverlay from "@/components/TutorialOverlay";
-import CommandGuide from "@/components/CommandGuide";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
 import { 
@@ -541,7 +540,6 @@ export default function DashboardPage() {
             <div className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800 h-[500px]">
               <ForensicTerminal />
             </div>
-            <CommandGuide />
             <div className="mt-6">
               <RobotAssistant />
             </div>
