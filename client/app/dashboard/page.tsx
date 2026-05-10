@@ -538,7 +538,10 @@ export default function DashboardPage() {
         <div className="lg:col-span-4 space-y-6">
           <div id="forensic-terminal-container" className="sticky top-6 space-y-6">
             <ThreatIntelligenceFeed />
-            <ForensicTerminal />
+            <div className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800 h-[500px]">
+              <ForensicTerminal />
+            </div>
+            <CommandGuide />
             <div className="mt-6">
               <RobotAssistant />
             </div>
