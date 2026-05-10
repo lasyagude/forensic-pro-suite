@@ -6,17 +6,9 @@ import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 import { useTheme } from "next-themes";
 
-export default function ForensicTerminal() {
+function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   const terminalRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
   const termInstance = useRef<Terminal | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -88,7 +80,7 @@ export default function ForensicTerminal() {
       cursorBlink: true,
       theme: {
         background: isDark ? "#0f172a" : "#ffffff",
-        foreground: isDark ? "#10b981" : "#0f172a", // Darker text for light mode
+        foreground: isDark ? "#10b981" : "#0f172a",
         cursor: isDark ? "#10b981" : "#0f172a",
         selectionBackground: isDark ? "rgba(16, 185, 129, 0.3)" : "rgba(15, 23, 42, 0.1)",
       },
@@ -151,7 +143,7 @@ export default function ForensicTerminal() {
       term.dispose();
       termInstance.current = null;
     };
-  }, [mounted]);
+  }, []);
 
   useEffect(() => {
     if (termInstance.current) {
@@ -163,10 +155,6 @@ export default function ForensicTerminal() {
       };
     }
   }, [isDark]);
-
-  if (!mounted) {
-    return <div className="h-64 mt-8 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />;
-  }
 
   return (
     <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm">
@@ -185,4 +173,20 @@ export default function ForensicTerminal() {
       />
     </div>
   );
+}
+
+export default function ForensicTerminal() {
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="h-64 mt-8 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />;
+  }
+
+  return <ForensicTerminalContent isDark={isDark} />;
 }
