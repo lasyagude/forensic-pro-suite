@@ -122,7 +122,8 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     };
 
     const checkInterval = setInterval(() => {
-      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !initialized.current) {
+      // Use a local flag to ensure we only open ONCE per effect mount
+      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !term.element) {
         clearInterval(checkInterval);
         
         try {
