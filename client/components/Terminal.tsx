@@ -134,9 +134,21 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 
     let currentLine = "";
     
-    // Explicitly handle DOM paste event
+    // Low-level keyboard interceptor for Paste
+    term.attachCustomKeyEventHandler((e) => {
+      // Allow Ctrl+V / Cmd+V to fall through to the browser's paste event
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        return true; 
+      }
+      return true;
+    });
+
+    // Explicitly handle DOM paste event on the window to ensure we catch it
     const handlePaste = (e: ClipboardEvent) => {
-      if (!termInstance.current || !terminalRef.current) return;
+      // Only handle if terminal is focused or the target is within the terminal
+      const isTerminalTarget = terminalRef.current?.contains(e.target as Node);
+      if (!isTerminalTarget || !termInstance.current) return;
+
       e.preventDefault();
       const text = e.clipboardData?.getData("text");
       if (text) {
@@ -146,16 +158,12 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       }
     };
 
-    const container = terminalRef.current;
-    container?.addEventListener("paste", handlePaste);
+    window.addEventListener("paste", handlePaste);
 
     const dataDisposable = term.onData((data) => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
 
-      // Skip if it was a paste handled above (onData still fires for paste usually)
-      // But we preventDefault so it might not. To be safe, we only handle single chars or Enter/BS here.
-      if (data.length > 1) return;
-
+      // Handle single character inputs (Enter, Backspace, etc.)
       const char = data;
       if (char === "\r") { // Enter
         term.write("\r\n");
@@ -167,7 +175,7 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
           currentLine = currentLine.slice(0, -1);
           term.write("\b \b");
         }
-      } else {
+      } else if (data.length === 1) {
         const code = char.charCodeAt(0);
         if (code >= 32 && code <= 126) {
           currentLine += char;
@@ -179,7 +187,7 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     return () => {
       clearInterval(checkInterval);
       if (initTimeout) clearTimeout(initTimeout);
-      container?.removeEventListener("paste", handlePaste);
+      window.removeEventListener("paste", handlePaste);
       dataDisposable.dispose();
       resizeObserver.disconnect();
       
