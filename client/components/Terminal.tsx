@@ -78,6 +78,7 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 
     const term = new Terminal({
       cursorBlink: true,
+      cursorStyle: "bar",
       theme: {
         background: isDark ? "#0f172a" : "#ffffff",
         foreground: isDark ? "#10b981" : "#0f172a",
@@ -85,7 +86,7 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         selectionBackground: isDark ? "rgba(16, 185, 129, 0.3)" : "rgba(15, 23, 42, 0.1)",
       },
       fontSize: 14,
-      fontFamily: "Courier New",
+      fontFamily: "Menlo, Monaco, 'Courier New', monospace",
       allowProposedApi: true,
     });
 
@@ -93,53 +94,48 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     term.loadAddon(fitAddon);
     termInstance.current = term;
 
-    const initTerminal = () => {
-      if (terminalRef.current && terminalRef.current.offsetHeight > 0) {
-        term.open(terminalRef.current);
-        fitAddon.fit();
-        term.focus(); // Ensure focus on open
-        
-        term.writeln("--- FORENSIC_PRO_TERMINAL v1.0.4 ---");
-        term.writeln('Type "help" to see available forensic commands.');
-        term.write("\r\n$ ");
-      } else {
-        requestAnimationFrame(initTerminal);
-      }
-    };
-
-    requestAnimationFrame(initTerminal);
+    // Direct open
+    term.open(terminalRef.current);
+    
+    // Give it a moment to render before fitting
+    setTimeout(() => {
+      fitAddon.fit();
+      term.focus();
+      term.writeln("\x1b[1;32m--- FORENSIC_PRO_TERMINAL v1.0.4 ---\x1b[0m");
+      term.writeln('Type "help" to see available forensic commands.');
+      term.write("\r\n$ ");
+    }, 100);
 
     const resizeObserver = new ResizeObserver(() => {
       try {
-        if (terminalRef.current && terminalRef.current.offsetHeight > 0) {
-          fitAddon.fit();
-        }
+        fitAddon.fit();
       } catch (e) {
-        console.warn("Terminal resize failed", e);
+        // Ignore resize errors
       }
     });
-
     resizeObserver.observe(terminalRef.current);
 
     let currentLine = "";
-    term.onData((e) => {
-      if (e === "\r") {
+    const dataDisposable = term.onData((e) => {
+      // Basic terminal echoing logic
+      if (e === "\r") { // Enter
         term.write("\r\n");
         handleCommand(currentLine, term);
         currentLine = "";
         term.write("$ ");
-      } else if (e === "\u007f") {
+      } else if (e === "\u007f") { // Backspace
         if (currentLine.length > 0) {
           currentLine = currentLine.slice(0, -1);
           term.write("\b \b");
         }
-      } else {
+      } else if (e.length === 1 && e.charCodeAt(0) >= 32) { // Printable characters
         currentLine += e;
         term.write(e);
       }
     });
 
     return () => {
+      dataDisposable.dispose();
       resizeObserver.disconnect();
       term.dispose();
       termInstance.current = null;
