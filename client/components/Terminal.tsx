@@ -134,36 +134,57 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 
     let currentLine = "";
     
-    // Low-level keyboard interceptor for Paste
-    term.attachCustomKeyEventHandler((e) => {
-      // Allow Ctrl+V / Cmd+V to fall through to the browser's paste event
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        return true; 
-      }
-      return true;
-    });
-
-    // Explicitly handle DOM paste event on the window to ensure we catch it
+    // Explicitly handle DOM paste event on the terminal's internal textarea
     const handlePaste = (e: ClipboardEvent) => {
-      // Only handle if terminal is focused or the target is within the terminal
-      const isTerminalTarget = terminalRef.current?.contains(e.target as Node);
-      if (!isTerminalTarget || !termInstance.current) return;
-
       e.preventDefault();
       const text = e.clipboardData?.getData("text");
-      if (text) {
+      if (text && termInstance.current) {
         const sanitized = text.replace(/[\r\n]+/g, "");
         term.write(sanitized);
         currentLine += sanitized;
       }
     };
 
-    window.addEventListener("paste", handlePaste);
+    // Low-level keyboard interceptor to ensure Ctrl+V reaches the paste event
+    term.attachCustomKeyEventHandler((e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && e.type === 'keydown') {
+        // On keydown, we don't handle it, we let the browser fire 'paste'
+        return true; 
+      }
+      return true;
+    });
+
+    const initTimeout = setTimeout(() => {
+      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !initialized.current === false) {
+        try {
+          term.open(terminalRef.current);
+          
+          // Wait for xterm to create its internal textarea
+          setTimeout(() => {
+            const textarea = terminalRef.current?.querySelector(".xterm-helper-textarea");
+            if (textarea) {
+              textarea.addEventListener("paste", handlePaste as any);
+            }
+          }, 100);
+
+          setTimeout(() => {
+            if (termInstance.current && terminalRef.current && terminalRef.current.offsetParent) {
+              try {
+                fitAddon.fit();
+                termInstance.current.focus();
+                termInstance.current.writeln("\x1b[1;32m--- FORENSIC_PRO_TERMINAL v1.0.4 ---\x1b[0m");
+                termInstance.current.writeln('Type "help" to see available forensic commands.');
+                termInstance.current.write("\r\n$ ");
+              } catch (e) {}
+            }
+          }, 200);
+        } catch (e) {}
+      }
+    }, 100);
 
     const dataDisposable = term.onData((data) => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
 
-      // Handle single character inputs (Enter, Backspace, etc.)
       const char = data;
       if (char === "\r") { // Enter
         term.write("\r\n");
@@ -186,10 +207,14 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 
     return () => {
       clearInterval(checkInterval);
-      if (initTimeout) clearTimeout(initTimeout);
-      window.removeEventListener("paste", handlePaste);
+      clearTimeout(initTimeout);
       dataDisposable.dispose();
       resizeObserver.disconnect();
+      
+      const textarea = terminalRef.current?.querySelector(".xterm-helper-textarea");
+      if (textarea) {
+        textarea.removeEventListener("paste", handlePaste as any);
+      }
       
       const toDispose = termInstance.current;
       termInstance.current = null;
