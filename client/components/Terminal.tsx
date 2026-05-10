@@ -133,31 +133,44 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     resizeObserver.observe(terminalRef.current);
 
     let currentLine = "";
-    const keyDisposable = term.onKey(({ key, domEvent }) => {
+    const dataDisposable = term.onData((data) => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
-      const char = key;
-      const printable = !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
 
-      if (domEvent.keyCode === 13) { // Enter
+      // Handle multi-character strings (pasted text)
+      if (data.length > 1) {
+        // Sanitize pasted text (remove newlines if any, or handle them)
+        const sanitized = data.replace(/[\r\n]+/g, "");
+        currentLine += sanitized;
+        term.write(sanitized);
+        return;
+      }
+
+      // Handle individual characters
+      const char = data;
+      if (char === "\r") { // Enter
         term.write("\r\n");
         handleCommand(currentLine, term);
         currentLine = "";
         term.write("$ ");
-      } else if (domEvent.keyCode === 8) { // Backspace
+      } else if (char === "\x7f") { // Backspace (DEL)
         if (currentLine.length > 0) {
           currentLine = currentLine.slice(0, -1);
           term.write("\b \b");
         }
-      } else if (printable && char.length === 1) {
-        currentLine += char;
-        term.write(char);
+      } else {
+        // Only accept printable characters (basic ASCII range for safety)
+        const code = char.charCodeAt(0);
+        if (code >= 32 && code <= 126) {
+          currentLine += char;
+          term.write(char);
+        }
       }
     });
 
     return () => {
       clearInterval(checkInterval);
       if (initTimeout) clearTimeout(initTimeout);
-      keyDisposable.dispose();
+      dataDisposable.dispose();
       resizeObserver.disconnect();
       
       const toDispose = termInstance.current;
