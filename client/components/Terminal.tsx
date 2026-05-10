@@ -9,6 +9,7 @@ import { useTheme } from "next-themes";
 function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const termInstance = useRef<Terminal | null>(null);
+  const currentLineRef = useRef("");
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -108,7 +109,6 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 
     let initTimeout: NodeJS.Timeout;
     let pasteListenerAttached = false;
-    let currentLine = "";
 
     // Explicitly handle DOM paste event on the terminal's internal textarea
     const handlePaste = (e: ClipboardEvent) => {
@@ -117,7 +117,7 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       if (text && termInstance.current) {
         const sanitized = text.replace(/[\r\n]+/g, "");
         term.write(sanitized);
-        currentLine += sanitized;
+        currentLineRef.current += sanitized;
       }
     };
 
@@ -174,18 +174,18 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       const char = data;
       if (char === "\r") { // Enter
         term.write("\r\n");
-        handleCommand(currentLine, term);
-        currentLine = "";
+        handleCommand(currentLineRef.current, term);
+        currentLineRef.current = "";
         term.write("$ ");
       } else if (char === "\x7f") { // Backspace (DEL)
-        if (currentLine.length > 0) {
-          currentLine = currentLine.slice(0, -1);
+        if (currentLineRef.current.length > 0) {
+          currentLineRef.current = currentLineRef.current.slice(0, -1);
           term.write("\b \b");
         }
       } else if (data.length === 1) {
         const code = char.charCodeAt(0);
         if (code >= 32 && code <= 126) {
-          currentLine += char;
+          currentLineRef.current += char;
           term.write(char);
         }
       }
@@ -263,7 +263,11 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
               key={action.cmd}
               onClick={() => {
                 if (termInstance.current) {
-                  termInstance.current.write(action.cmd + "\r");
+                  // Manually trigger command for Quick Actions
+                  termInstance.current.writeln(action.cmd);
+                  handleCommand(action.cmd, termInstance.current);
+                  termInstance.current.write("$ ");
+                  currentLineRef.current = ""; // Clear any partial manual input
                 }
               }}
               className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-bold text-slate-500 hover:text-emerald-500 hover:border-emerald-500/30 transition-all active:scale-95"
