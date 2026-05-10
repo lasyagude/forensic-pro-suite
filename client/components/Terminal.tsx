@@ -133,19 +133,29 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     resizeObserver.observe(terminalRef.current);
 
     let currentLine = "";
+    
+    // Explicitly handle DOM paste event
+    const handlePaste = (e: ClipboardEvent) => {
+      if (!termInstance.current || !terminalRef.current) return;
+      e.preventDefault();
+      const text = e.clipboardData?.getData("text");
+      if (text) {
+        const sanitized = text.replace(/[\r\n]+/g, "");
+        term.write(sanitized);
+        currentLine += sanitized;
+      }
+    };
+
+    const container = terminalRef.current;
+    container?.addEventListener("paste", handlePaste);
+
     const dataDisposable = term.onData((data) => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
 
-      // Handle multi-character strings (pasted text)
-      if (data.length > 1) {
-        // Sanitize pasted text (remove newlines if any, or handle them)
-        const sanitized = data.replace(/[\r\n]+/g, "");
-        currentLine += sanitized;
-        term.write(sanitized);
-        return;
-      }
+      // Skip if it was a paste handled above (onData still fires for paste usually)
+      // But we preventDefault so it might not. To be safe, we only handle single chars or Enter/BS here.
+      if (data.length > 1) return;
 
-      // Handle individual characters
       const char = data;
       if (char === "\r") { // Enter
         term.write("\r\n");
@@ -158,7 +168,6 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
           term.write("\b \b");
         }
       } else {
-        // Only accept printable characters (basic ASCII range for safety)
         const code = char.charCodeAt(0);
         if (code >= 32 && code <= 126) {
           currentLine += char;
@@ -170,6 +179,7 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     return () => {
       clearInterval(checkInterval);
       if (initTimeout) clearTimeout(initTimeout);
+      container?.removeEventListener("paste", handlePaste);
       dataDisposable.dispose();
       resizeObserver.disconnect();
       
