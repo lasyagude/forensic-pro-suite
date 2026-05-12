@@ -35,7 +35,7 @@ export default function AnalysisLogs() {
           key={index}
           initial={{ opacity: 0, x: -5 }}
           animate={{ opacity: 1, x: 0 }}
-          className={log.includes("SUCCESS") ? "text-emerald-400" : "text-slate-400"}
+          className={log && log.includes("SUCCESS") ? "text-emerald-400" : "text-slate-400"}
         >
           {log}
         </motion.div>
