@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Shield, FileText, Scale, BookOpen, Github, Mail, Linkedin, Instagram } from "lucide-react";
+import { Shield, Github, Mail, Linkedin, Instagram, Scale, FileText, BookOpen, Terminal } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -37,6 +37,9 @@ export default function Footer() {
                 </Link>
                 <Link href="/terms" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
                   <FileText className="w-3.5 h-3.5" /> Terms
+                </Link>
+                <Link href="/commands" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
+                  <Terminal className="w-3.5 h-3.5" /> Commands
                 </Link>
                 <Link href="/docs" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
                   <BookOpen className="w-3.5 h-3.5" /> Docs

@@ -16,9 +16,37 @@ import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
+import TutorialOverlay from "@/components/TutorialOverlay";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
-import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, LayoutDashboard, Database } from "lucide-react";
+import { 
+  Shield, 
+  Search, 
+  LogOut, 
+  Clock, 
+  FileText, 
+  Download, 
+  Activity, 
+  MapPin, 
+  ChevronRight,
+  Database,
+  Archive,
+  Menu,
+  X,
+  FileDown,
+  ExternalLink,
+  Cpu,
+  Monitor,
+  Moon,
+  Sun,
+  User,
+  Skull, 
+  Save, 
+  Folder, 
+  Zap, 
+  AlertTriangle, 
+  LayoutDashboard
+} from "lucide-react";
 
 interface CaseRecord {
   id: string;
@@ -28,6 +56,10 @@ interface CaseRecord {
   investigator: string;
   status: string;
   created_at: string;
+  file_size?: string;
+  creation_date?: string;
+  modification_date?: string;
+  notes?: string;
 }
 
 interface AnalysisResult {
@@ -238,7 +270,7 @@ export default function DashboardPage() {
     input.click();
   };
 
-  const chartData = buildChartData(caseHistory);
+  const chartData = buildChartData(caseHistory.length > 0 ? caseHistory : demoCaseRecords);
 
   const stats = {
   total: caseHistory.length,
@@ -452,7 +484,7 @@ export default function DashboardPage() {
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
               <AnimatePresence>
-                {caseHistory.map((item) => (
+                {(caseHistory.length > 0 ? caseHistory : demoCaseRecords).map((item) => (
                   <motion.div
                     key={item.id}
                     className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm gap-4"
@@ -487,9 +519,11 @@ export default function DashboardPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => generateForensicReport(item)}
-                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase"
+                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase flex items-center gap-1"
+                          title="Generate Comprehensive Chain-of-Custody Report"
                         >
-                          PDF
+                          <FileText className="w-3 h-3" />
+                          <span>Report</span>
                         </button>
                         <button
                           onClick={() => exportEvidenceBundle(item)}
