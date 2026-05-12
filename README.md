@@ -4,7 +4,7 @@ A high-fidelity Digital Forensics Workstation enhanced for automated artifact ex
 
 | Resource | Link |
 |---|---|
-| 🌐 **Live Workstation** | [https://forensic-pro-suite.vercel.app/](https://forensic-pro-suite.vercel.app/) |
+| 🌐 **Live Workstation** | [https://forensic-pro-suite-new.vercel.app/](https://forensic-pro-suite-new.vercel.app/) |
 
 ## 🌟 Advanced Forensic Enhancements (The "Strong" Version)
 
