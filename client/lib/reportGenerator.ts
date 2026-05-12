@@ -107,7 +107,7 @@ export const generateForensicReport = (data: ForensicReportData) => {
     theme: 'striped',
     headStyles: { fillColor: [15, 23, 42], textColor: [16, 185, 129], fontStyle: 'bold' },
     styles: { fontSize: 9, cellPadding: 4 },
-    columnStyles: { 0: { fontStyle: 'bold', width: 60 } },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60 } },
   });
 
   // 2. Forensic Integrity Checklist
@@ -150,7 +150,7 @@ export const generateForensicReport = (data: ForensicReportData) => {
       ['Final Forensic Report Exported', new Date().toLocaleString(), sanitize(data.investigator)],
     ],
     theme: 'plain',
-    headStyles: { fontStyle: 'bold', textColor: [100] },
+    headStyles: { fontStyle: 'bold', textColor: [100, 100, 100] },
     styles: { fontSize: 8, cellPadding: 2 },
   });
 
