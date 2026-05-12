@@ -28,6 +28,10 @@ interface CaseRecord {
   investigator: string;
   status: string;
   created_at: string;
+  file_size?: string;
+  creation_date?: string;
+  modification_date?: string;
+  notes?: string;
 }
 
 interface AnalysisResult {
@@ -487,9 +491,11 @@ export default function DashboardPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => generateForensicReport(item)}
-                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase"
+                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase flex items-center gap-1"
+                          title="Generate Comprehensive Chain-of-Custody Report"
                         >
-                          PDF
+                          <FileText className="w-3 h-3" />
+                          <span>Report</span>
                         </button>
                         <button
                           onClick={() => exportEvidenceBundle(item)}
