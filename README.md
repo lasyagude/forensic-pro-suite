@@ -19,6 +19,8 @@ The suite has been recently upgraded with workstation-grade stability and modern
 
 *   **[🚀 Full Setup Guide](./SETUP.md)**
 *   **[🌍 Deployment Guide](./SETUP.md#deployment-guide)**
+*   **[📖 File Guide & Instructions](./INSTRUCTIONS.md)**
+*   **[🛡️ Security Policy](./SECURITY.md)**
 *   **[🤝 Contributing](./Contributing.md)**
 *   **[⚖️ License](./LICENSE.md)**
 
@@ -71,6 +73,8 @@ The embedded terminal (`investigator_cli_v1`) allows you to simulate high-level 
 | UI Components | Framer Motion, ToolModal, Footer |
 
 ## 📁 Project Structure
+
+> For a detailed breakdown of each file and its working principle, see **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**.
 
 ```
 forensic-pro-suite/
