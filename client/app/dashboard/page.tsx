@@ -252,7 +252,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 sm:p-6 lg:p-6 font-sans transition-colors duration-300">
       <header className="flex flex-col md:flex-row justify-between items-center md:items-start mb-10 border-b border-slate-200 dark:border-slate-800 pb-8 gap-8 text-center md:text-left">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -300,7 +300,7 @@ export default function DashboardPage() {
       <motion.section
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8"
       >
         {[
           { label: "Total Cases", value: stats.total, color: "text-emerald-400", border: "border-emerald-500/20" },
@@ -308,7 +308,7 @@ export default function DashboardPage() {
           { label: "Verified", value: stats.verified, color: "text-blue-400", border: "border-blue-500/20" },
           { label: "Reports Generated", value: stats.reportsGenerated, color: "text-purple-400", border: "border-purple-500/20" },
         ].map((stat) => (
-          <div key={stat.label} className={`bg-slate-50 dark:bg-slate-900 border ${stat.border} rounded-xl p-4 text-center shadow-sm`}>
+          <div key={stat.label} className={`bg-slate-50 dark:bg-slate-900 border ${stat.border} rounded-xl p-3 sm:p-4 text-center shadow-sm`}>
             <p className="text-[10px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-2">{stat.label}</p>
             <p className={`text-3xl font-mono font-bold ${stat.color}`}>{stat.value}</p>
           </div>
@@ -316,7 +316,7 @@ export default function DashboardPage() {
       </motion.section>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-8">
+        <div className="lg:col-span-8 space-y-6 sm:space-y-8">
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {forensicTools.map((tool, index) => (
               <motion.div
@@ -512,7 +512,7 @@ export default function DashboardPage() {
           </motion.section>
         </div>
 
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4 sm:space-y-6">
           <div id="forensic-terminal-container" className="sticky top-6 space-y-6">
             <ThreatIntelligenceFeed />
             <ForensicTerminal />
