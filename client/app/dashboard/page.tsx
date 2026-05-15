@@ -18,6 +18,7 @@ import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
+import BackToTop from "@/components/BackToTop";
 import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, LayoutDashboard, Database } from "lucide-react";
 
 interface CaseRecord {
@@ -523,6 +524,7 @@ export default function DashboardPage() {
         </div>
       </div>
       <Footer />
+      <BackToTop />
       <ToolModal 
         tool={selectedTool} 
         onClose={() => setSelectedTool(null)} 
