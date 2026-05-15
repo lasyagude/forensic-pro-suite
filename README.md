@@ -2,16 +2,20 @@
 
 A high-fidelity Digital Forensics Workstation enhanced for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
 
-## 🌟 Professional Workstation Modernization (v1.0.4)
+| Resource | Link |
+|---|---|
+| 🌐 **Live Workstation** | [https://forensic-pro-suite-new.vercel.app/](https://forensic-pro-suite-new.vercel.app/) |
 
-The suite has been recently upgraded with workstation-grade stability and modern aesthetic standards:
+## 🌟 Advanced Forensic Enhancements (The "Strong" Version)
 
-*   **🖥️ Professional Slate Aesthetic:** Replaced the legacy high-contrast "Matrix" theme with a professional **Slate/Emerald** workstation palette, optimized for long-term investigator use and reduced eye strain.
-*   **📱 Mobile-Responsive Architecture:** The entire dashboard and footer are now fully responsive. Critical forensic data cards and navigation items intelligently stack and scale for tablets and smartphones.
-*   **🛡️ Visibility-Guarded Terminal:** Implemented a robust "Visibility-First" initialization sequence for the Investigator CLI, eliminating `xterm.js` runtime crashes during theme toggles or rapid navigation.
-*   **📐 Dynamic Layout Scaling:** Re-integrated the `FitAddon` with safety guards to ensure full-text visibility and automatic window scaling across all display resolutions.
-*   **⚡ Dual-Hash Integrity Pipeline:** Simultaneous SHA-256 and MD5 hashing for every artifact to ensure zero-collision data integrity.
-*   **📂 Advanced Metadata Extraction:** Python `ForensicEngine` captures OS-level artifacts like file signatures, permissions, and timestamps.
+This version has been overhauled to provide military-grade forensic reliability:
+
+*   **⚡ Dual-Hash Integrity Pipeline:** Implemented simultaneous SHA-256 and MD5 hashing for every artifact to ensure zero-collision data integrity.
+*   **🔍 Magic Number (File Signature) Analysis:** Added deep header inspection to detect extension spoofing and hidden executables disguised as documents.
+*   **📡 Live Threat Intelligence Feed:** Integrated a real-time (simulated) global threat monitoring dashboard for constant situational awareness.
+*   **🛡️ Heuristic Threat Assessment:** Automated classification of evidence risk levels (Neutral vs. Elevated) based on signature verification.
+*   **📂 Advanced Metadata Extraction:** Expanded the Python `ForensicEngine` to capture OS-level artifacts like file permissions and last-accessed timestamps.
+*   **🤖 Upgraded Forensic Assistant:** Re-trained the interactive AI guide to support advanced triage methodology.
 
 ---
 
@@ -70,7 +74,6 @@ The embedded terminal (`investigator_cli_v1`) allows you to simulate high-level 
 | Backend | FastAPI (Python), Uvicorn, python-multipart |
 | Database | Supabase (PostgreSQL + RLS) |
 | Icons | Lucide React |
-| UI Components | Framer Motion, ToolModal, Footer |
 
 ## 📁 Project Structure
 
@@ -88,8 +91,7 @@ forensic-pro-suite/
 │   │   ├── RobotAssistant.tsx   # Guided tutorial widget
 │   │   ├── Terminal.tsx         # Xterm.js CLI
 │   │   ├── AnalysisLogs.tsx     # Live log stream
-│   │   ├── ToolModal.tsx        # Forensic tool simulation
-│   │   └── Footer.tsx           # Responsive project/contact footer
+│   │   └── TutorialOverlay.tsx  # Step-aware highlight overlay
 │   ├── lib/
 │   │   ├── supabase.ts          # Supabase client
 │   │   └── reportGenerator.ts   # jsPDF chain-of-custody export
