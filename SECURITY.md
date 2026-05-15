@@ -17,7 +17,7 @@ If you discover a potential security vulnerability within this project, please r
 
 ### How to Report
 
-Please send an email to **security@forensics-suite.com** with the following information:
+Please send an email to **<security@forensics-suite.com>** with the following information:
 
 1. **Type of issue** (e.g., SQL injection, XSS, RCE, Data Leak).
 2. **Location** of the vulnerability (URL, file path, or component).

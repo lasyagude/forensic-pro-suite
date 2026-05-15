@@ -9,17 +9,17 @@ This guide will walk you through setting up the project from scratch, including 
 3. **SQL Editor**: Once the project is ready, click on **SQL Editor** in the left sidebar.
 4. **Create Table**: Click **New query** and paste the following SQL to create the `cases` table:
 
-```sql
-create table cases (
-  id uuid default gen_random_uuid() primary key,
-  case_id text,
-  filename text,
-  hash_value text,
-  investigator text,
-  status text,
-  created_at timestamp with time zone default now()
-);
-```
+   ```sql
+   create table cases (
+     id uuid default gen_random_uuid() primary key,
+     case_id text,
+     filename text,
+     hash_value text,
+     investigator text,
+     status text,
+     created_at timestamp with time zone default now()
+   );
+   ```
 
 5. **Enable RLS**:
    - Go to **Table Editor** -> `cases`.

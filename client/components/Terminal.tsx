@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
@@ -218,13 +218,9 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 export default function ForensicTerminal() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
-  const isInitializedRef = useRef<boolean | null>(null);
+  const [mounted] = useState(() => typeof window !== "undefined");
 
-  if (isInitializedRef.current == null) {
-    isInitializedRef.current = typeof window !== "undefined";
-  }
-
-  if (!isInitializedRef.current) {
+  if (!mounted) {
     return <div className="h-64 mt-8 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />;
   }
 
