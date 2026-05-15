@@ -92,6 +92,7 @@ export default function DashboardPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
@@ -244,6 +245,16 @@ export default function DashboardPage() {
 
   const chartData = buildChartData(caseHistory.length > 0 ? caseHistory : demoCaseRecords);
 
+  const allCases = caseHistory.length > 0 ? caseHistory : demoCaseRecords;
+  const filteredCases = searchQuery
+    ? allCases.filter(
+        (item) =>
+          item.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.case_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.status.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allCases;
+
   const stats = {
   total: caseHistory.length,
   pending: caseHistory.filter((c) => c.status?.toLowerCase() === "pending").length,
@@ -384,7 +395,7 @@ export default function DashboardPage() {
           {/* Database Records */}
           <motion.section className="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h2 className="text-xs font-bold text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest">
                   Database Records
                 </h2>
@@ -394,7 +405,27 @@ export default function DashboardPage() {
                   </p>
                 )}
               </div>
-              <button
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                <div className="relative w-full sm:w-56">
+                  <input
+                    type="text"
+                    placeholder="Search cases..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-3 pr-8 py-1.5 text-[11px] font-mono text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                    aria-label="Search case records"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      aria-label="Clear search"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+                <button
                 onClick={handleExportCSV}
                 disabled={exportButtonDisabled}
                 className={`rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 transition-all duration-200 ${
@@ -403,9 +434,10 @@ export default function DashboardPage() {
                     : "border-emerald-500/30 bg-slate-100/90 dark:bg-slate-900/90 text-emerald-600 dark:text-emerald-300 shadow-sm shadow-emerald-500/10 hover:border-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-500 dark:hover:text-emerald-100 active:scale-[0.98]"
                 }`}
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>{csvButtonLabel}</span>
-              </button>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{csvButtonLabel}</span>
+                </button>
+              </div>
             </div>
 
             <AnimatePresence>
@@ -456,7 +488,7 @@ export default function DashboardPage() {
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
               <AnimatePresence>
-                {(caseHistory.length > 0 ? caseHistory : demoCaseRecords).map((item) => (
+                {(filteredCases.length > 0 ? filteredCases : searchQuery ? [] : allCases).map((item) => (
                   <motion.div
                     key={item.id}
                     className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm gap-4"
@@ -507,6 +539,15 @@ export default function DashboardPage() {
                     </div>
                   </motion.div>
                 ))}
+                {searchQuery && filteredCases.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center py-8 text-slate-500 text-sm font-mono"
+                  >
+                    No cases found matching "{searchQuery}"
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
           </motion.section>
