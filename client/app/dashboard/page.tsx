@@ -18,6 +18,7 @@ import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, LayoutDashboard, Database } from "lucide-react";
 
 interface CaseRecord {
@@ -92,6 +93,7 @@ export default function DashboardPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
@@ -194,6 +196,7 @@ export default function DashboardPage() {
         setFetchError(null);
         setCaseHistory(data as CaseRecord[]);
       }
+      setIsLoading(false);
     };
     fetchHistory();
   }, [analysisResult]);
@@ -252,6 +255,10 @@ export default function DashboardPage() {
   };
 
   return (
+    <>
+      {isLoading ? (
+        <LoadingSkeleton />
+      ) : (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 font-sans transition-colors duration-300">
       <header className="flex flex-col md:flex-row justify-between items-center md:items-start mb-10 border-b border-slate-200 dark:border-slate-800 pb-8 gap-8 text-center md:text-left">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -528,5 +535,7 @@ export default function DashboardPage() {
         onClose={() => setSelectedTool(null)} 
       />
     </div>
+      )}
+    </>
   );
 }
