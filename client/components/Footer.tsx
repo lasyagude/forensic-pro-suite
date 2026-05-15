@@ -4,7 +4,7 @@ import { Shield, FileText, Scale, BookOpen, Github, Mail, Linkedin, Instagram } 
 
 export default function Footer() {
   return (
-    <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 px-6 transition-colors duration-300">
+    <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 px-6 transition-colors duration-300" role="contentinfo">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start text-left gap-12">
           {/* Brand & Repo */}
@@ -31,7 +31,7 @@ export default function Footer() {
           <div className="grid grid-cols-2 gap-8 sm:gap-24 w-fit mx-auto lg:mx-0 lg:w-auto">
             <div className="space-y-4">
               <h4 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Platform</h4>
-              <nav className="flex flex-col items-start gap-3">
+              <nav className="flex flex-col items-start gap-3" aria-label="Platform links">
                 <Link href="/privacy" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
                   <Scale className="w-3.5 h-3.5" /> Privacy
                 </Link>
@@ -46,7 +46,7 @@ export default function Footer() {
             
             <div className="space-y-4">
               <h4 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Connect</h4>
-              <div className="flex flex-col items-start gap-3">
+              <div className="flex flex-col items-start gap-3" aria-label="Social links">
                 <a href="mailto:akshayshibu473@gmail.com" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5" /> Email
                 </a>

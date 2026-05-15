@@ -267,7 +267,7 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center items-center gap-4">
+        <div className="flex flex-wrap justify-center items-center gap-4" role="toolbar" aria-label="Dashboard controls">
           <ThemeToggle />
           <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 md:p-3 rounded-xl text-center min-w-[80px]">
             <p className="text-[8px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-1">Archive</p>
@@ -301,6 +301,8 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        role="region"
+        aria-label="Case statistics summary"
       >
         {[
           { label: "Total Cases", value: stats.total, color: "text-emerald-400", border: "border-emerald-500/20" },
@@ -317,7 +319,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4" role="region" aria-label="Forensic tools">
             {forensicTools.map((tool, index) => (
               <motion.div
                 key={tool.name}
@@ -326,6 +328,10 @@ export default function DashboardPage() {
                 transition={{ delay: index * 0.05 }}
                 id={tool.id}
                 onClick={() => handleToolClick(tool)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleToolClick(tool); }}
+                aria-label={`${tool.name} - ${tool.cat}`}
                 className={`bg-slate-50 dark:bg-slate-900 border ${tool.special ? "border-emerald-500/50" : "border-slate-200 dark:border-slate-800"} p-4 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative overflow-hidden group min-h-[120px] shadow-sm`}
               >
                 {tool.special && isAnalyzing && (

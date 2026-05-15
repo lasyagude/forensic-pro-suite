@@ -74,6 +74,7 @@ export default function ToolModal({ tool, onClose }: ToolModalProps) {
             </div>
             <button 
               onClick={onClose}
+              aria-label="Close modal"
               className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 transition-colors"
             >
               <X className="w-6 h-6" />
@@ -99,6 +100,7 @@ export default function ToolModal({ tool, onClose }: ToolModalProps) {
                 </div>
                 <button 
                   onClick={() => setStatus("running")}
+                  aria-label="Start forensic analysis"
                   className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
                 >
                   <Play className="w-5 h-5 fill-current" />
@@ -157,21 +159,22 @@ export default function ToolModal({ tool, onClose }: ToolModalProps) {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  <button 
-                    onClick={() => {
-                      const content = `FORENSIC CASE REPORT\n====================\nTool: ${tool.name}\nCategory: ${tool.cat}\nStatus: Verified\nTimestamp: ${new Date().toISOString()}\nIntegrity Hash: SHA-256:${Math.random().toString(36).substring(2, 15)}\n\nTasks Completed:\n${tasks.map(t => `- [x] ${t}`).join("\n")}`;
-                      const blob = new Blob([content], { type: "text/plain" });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = `${tool.name.toLowerCase()}_report_${Date.now()}.txt`;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(url);
-                    }}
-                    className="w-full max-w-sm flex items-center justify-center gap-3 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-500 transition shadow-xl shadow-emerald-500/20 active:scale-[0.98]"
-                  >
+                    <button 
+                      onClick={() => {
+                        const content = `FORENSIC CASE REPORT\n====================\nTool: ${tool.name}\nCategory: ${tool.cat}\nStatus: Verified\nTimestamp: ${new Date().toISOString()}\nIntegrity Hash: SHA-256:${Math.random().toString(36).substring(2, 15)}\n\nTasks Completed:\n${tasks.map(t => `- [x] ${t}`).join("\n")}`;
+                        const blob = new Blob([content], { type: "text/plain" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${tool.name.toLowerCase()}_report_${Date.now()}.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      }}
+                      aria-label="Download forensic case report"
+                      className="w-full max-w-sm flex items-center justify-center gap-3 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-500 transition shadow-xl shadow-emerald-500/20 active:scale-[0.98]"
+                    >
                     <Download className="w-5 h-5" />
                     Download Forensic Case
                   </button>
