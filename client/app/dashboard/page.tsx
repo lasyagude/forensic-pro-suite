@@ -16,9 +16,37 @@ import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
+import TutorialOverlay from "@/components/TutorialOverlay";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
-import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, LayoutDashboard, Database } from "lucide-react";
+import { 
+  Shield, 
+  Search, 
+  LogOut, 
+  Clock, 
+  FileText, 
+  Download, 
+  Activity, 
+  MapPin, 
+  ChevronRight,
+  Database,
+  Archive,
+  Menu,
+  X,
+  FileDown,
+  ExternalLink,
+  Cpu,
+  Monitor,
+  Moon,
+  Sun,
+  User,
+  Skull, 
+  Save, 
+  Folder, 
+  Zap, 
+  AlertTriangle, 
+  LayoutDashboard
+} from "lucide-react";
 
 interface CaseRecord {
   id: string;
