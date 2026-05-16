@@ -238,7 +238,7 @@ export default function DashboardPage() {
       formData.append("file", file);
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/analyze`, {
+        const response = await fetch("/api/analyze", {
           method: "POST",
           body: formData,
         });

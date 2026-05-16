@@ -53,6 +53,7 @@ create table cases (
     - `NEXT_PUBLIC_SUPABASE_URL`: Paste your Supabase Project URL.
     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Paste your Supabase anon key.
     - `NEXTAUTH_SECRET`: You can generate one by running `openssl rand -base64 32` or just typing a long random string.
+    - `ANALYZE_API_KEY` (optional): shared server-side key used by the authenticated upload proxy.
 
 4.  Install dependencies and start:
     ```bash
@@ -76,6 +77,9 @@ create table cases (
 3.  Open `.env` and fill in the same Supabase details:
     - `SUPABASE_URL`: Your Supabase Project URL.
     - `SUPABASE_ANON_KEY`: Your Supabase anon key.
+    - `ANALYZE_API_KEY` (optional): must match the client-side proxy key if you want backend-side request verification.
+    - `DISABLE_ANTIVIRUS_SCAN` (optional): set to `true` only if you need to bypass local AV scanning in development.
+    - `REQUIRE_ANTIVIRUS_SCAN` (optional): set to `true` to reject uploads when no AV scanner is present.
 
 4.  Install Python dependencies:
     ```bash
@@ -86,6 +90,12 @@ create table cases (
     uvicorn main:app --reload --port 8000
     ```
     The backend will be at `http://localhost:8000`.
+
+### Upload flow
+
+The dashboard now submits evidence to the same-origin Next.js route at `/api/analyze`. That route checks the logged-in investigator session, then forwards the file to the backend with a server-side analyze key.
+
+The backend streams uploads to disk, rejects oversized or suspicious archives, scans with ClamAV if enabled, and runs the forensic engine in a separate worker process.
 
 ---
 

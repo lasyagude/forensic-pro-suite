@@ -1,8 +1,13 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from engine import ForensicEngine
-import asyncio
-import tempfile
+from security import (
+    inspect_archive_limits,
+    remove_file,
+    run_analysis_in_worker,
+    run_antivirus_scan,
+    stream_upload_to_tempfile,
+    validate_analyze_api_key,
+)
 import os
 import time
 
@@ -13,6 +18,7 @@ allowed_origin = os.getenv("ALLOWED_ORIGIN", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[allowed_origin],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -59,8 +65,10 @@ async def get_case_stats():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/analyze")
-async def run_forensic_pipeline(file: UploadFile = File(...)):
+async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
     try:
+        validate_analyze_api_key(request.headers.get("x-analyze-key"))
+
         ext = os.path.splitext(file.filename or "")[1].lower()
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(
@@ -68,22 +76,17 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
                 detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
             )
 
-        content = await file.read()
-
-        if len(content) > MAX_FILE_SIZE:
-            raise HTTPException(status_code=413, detail="File exceeds the 500 MB size limit.")
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
-            tmp.write(content)
-            tmp_path = tmp.name
+        tmp_path = None
+        archive_metadata = None
 
         try:
-            engine = ForensicEngine(tmp_path)
-            report = engine.run_automated_process()
+            tmp_path, _ = await stream_upload_to_tempfile(file, ext)
+            archive_metadata = inspect_archive_limits(tmp_path, file.filename or "")
+            antivirus_result = run_antivirus_scan(tmp_path)
+            report = run_analysis_in_worker(tmp_path)
         finally:
-            os.unlink(tmp_path)
-
-        await asyncio.sleep(2)
+            if tmp_path:
+                remove_file(tmp_path)
 
         return {
             "id": f"CASE-{int(time.time())}",
@@ -99,7 +102,10 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
             "threat_level": report['threat_level'],
             "status": "COMPLETED",
             "report_generated": True,
-            "findings": f"Advanced Forensic Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5)."
+            "findings": f"Advanced Forensic Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5).",
+            "antivirus_scan": antivirus_result,
+            "archive_inspection": archive_metadata,
+            "analysis_mode": "isolated-worker",
         }
     except HTTPException:
         raise
