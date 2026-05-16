@@ -27,7 +27,7 @@ export default function Preloader() {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] bg-slate-950 flex flex-col items-center justify-center p-6"
+          className="fixed inset-0 z-9999 bg-slate-950 flex flex-col items-center justify-center p-6"
         >
           <div className="relative mb-8">
             <motion.div
@@ -47,7 +47,7 @@ export default function Preloader() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-              className="absolute inset-[-20px] border-2 border-emerald-500/10 border-t-emerald-500/40 rounded-full"
+              className="absolute -inset-5 border-2 border-emerald-500/10 border-t-emerald-500/40 rounded-full"
             />
           </div>
 
@@ -65,7 +65,7 @@ export default function Preloader() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400"
+              className="h-full bg-linear-to-r from-emerald-600 to-emerald-400"
             />
           </div>
 
