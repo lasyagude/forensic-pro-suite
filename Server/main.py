@@ -6,6 +6,7 @@ import tempfile
 import os
 import time
 import logging
+import hashlib
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,19 +78,30 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
 
     tmp_path = None
     try:
-        content = await file.read()
-
-        if len(content) == 0:
-            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
-
-        if len(content) > MAX_FILE_SIZE:
-            raise HTTPException(status_code=413, detail="File exceeds the 500 MB size limit.")
+        sha256 = hashlib.sha256()
+        md5 = hashlib.md5()
+        total = 0
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
-            tmp.write(content)
+            while True:
+                chunk = await file.read(65536)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total == 0:
+                    continue
+                if total > MAX_FILE_SIZE:
+                    raise HTTPException(status_code=413, detail="File exceeds the 500 MB size limit.")
+                tmp.write(chunk)
+                sha256.update(chunk)
+                md5.update(chunk)
             tmp_path = tmp.name
 
-        engine = ForensicEngine(tmp_path)
+        if total == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+        pre_hashes = {"sha256": sha256.hexdigest(), "md5": md5.hexdigest()}
+        engine = ForensicEngine(tmp_path, precomputed_hashes=pre_hashes)
         report = engine.run_automated_process()
 
         await asyncio.sleep(2)

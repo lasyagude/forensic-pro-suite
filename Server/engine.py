@@ -3,14 +3,15 @@ import os
 import datetime
 
 class ForensicEngine:
-    def __init__(self, evidence_path):
+    def __init__(self, evidence_path, precomputed_hashes=None):
         self.evidence_path = evidence_path
         self.report_data = {}
+        self.precomputed_hashes = precomputed_hashes or {}
 
     def run_automated_process(self):
         print("Starting Identification...")
-        sha256 = self.generate_hash("sha256")
-        md5 = self.generate_hash("md5")
+        sha256 = self.precomputed_hashes.get("sha256") or self.generate_hash("sha256")
+        md5 = self.precomputed_hashes.get("md5") or self.generate_hash("md5")
 
         print("Verifying Magic Numbers...")
         magic_verified, file_sig = self.verify_file_signature()
@@ -65,4 +66,4 @@ class ForensicEngine:
             "modified": datetime.datetime.fromtimestamp(stats.st_mtime, tz=datetime.timezone.utc).isoformat(),
             "accessed": datetime.datetime.fromtimestamp(stats.st_atime, tz=datetime.timezone.utc).isoformat(),
             "permissions": oct(stats.st_mode)[-3:]
-        }
+        }
