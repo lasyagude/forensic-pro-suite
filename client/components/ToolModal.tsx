@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Shield, CheckCircle, Loader2, Terminal, Download } from "lucide-react";
-import AnalysisLogs from "./AnalysisLogs";
+import { X, Play, Shield, CheckCircle, Loader2, Download } from "lucide-react";
 
 interface ToolModalProps {
   tool: {
@@ -54,7 +53,7 @@ export default function ToolModal({ tool, onClose }: ToolModalProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+      <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

@@ -45,7 +45,7 @@ export default function PrivacyPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-emerald-400 uppercase tracking-widest font-mono">1. Evidence Handling</h2>
               <p>
-                The Forensic Pro Suite is designed with a "Security-First" architecture. Any data processed through the Automated Flow or individual forensic tools is handled locally within your session. We do not store evidence files on our centralized servers unless explicitly uploaded to a secure vault.
+                The Forensic Pro Suite is designed with a &quot;Security-First&quot; architecture. Any data processed through the Automated Flow or individual forensic tools is handled locally within your session. We do not store evidence files on our centralized servers unless explicitly uploaded to a secure vault.
               </p>
             </div>
 

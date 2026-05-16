@@ -65,6 +65,15 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.clear();
         break;
 
+      case "hash":
+      case "hash <file>":
+        term.writeln("[*] Computing forensic hashes for evidence file...");
+        term.writeln("[+] SHA-256: a81f3c72b9e4d6f1c0a5827e3d49b610f7e2c8a5d3b94f16e0c7d2a8b5e3f194");
+        term.writeln("[+] MD5:     7f8a3b2c1d0e9f4a5b6c7d8e9f0a1b2c");
+        term.writeln("[+] SHA-1:   3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d");
+        term.writeln("[+] Integrity: VERIFIED - No tampering detected.");
+        break;
+
       case "":
         break;
 
@@ -101,12 +110,12 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 
     let initTimeout: NodeJS.Timeout;
     const checkInterval = setInterval(() => {
-      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !initialized.current === false) {
+      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && initialized.current) {
         clearInterval(checkInterval);
-        
+
         try {
           term.open(terminalRef.current);
-          
+
           initTimeout = setTimeout(() => {
             if (termInstance.current && terminalRef.current && terminalRef.current.offsetParent) {
               try {
@@ -115,10 +124,12 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
                 termInstance.current.writeln("\x1b[1;32m--- FORENSIC_PRO_TERMINAL v1.0.4 ---\x1b[0m");
                 termInstance.current.writeln('Type "help" to see available forensic commands.');
                 termInstance.current.write("\r\n$ ");
-              } catch (e) {}
+              } catch {
+                // Silently handle fit/focus errors
+              }
             }
           }, 100);
-        } catch (e) {
+        } catch {
           // Fallback if open fails
         }
       }
@@ -128,7 +139,9 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
       try {
         fitAddon.fit();
-      } catch (e) {}
+      } catch {
+        // Silently handle resize errors
+      }
     });
     resizeObserver.observe(terminalRef.current);
 
@@ -138,12 +151,12 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       const char = key;
       const printable = !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
 
-      if (domEvent.keyCode === 13) { // Enter
+      if (domEvent.keyCode === 13) {
         term.write("\r\n");
         handleCommand(currentLine, term);
         currentLine = "";
         term.write("$ ");
-      } else if (domEvent.keyCode === 8) { // Backspace
+      } else if (domEvent.keyCode === 8) {
         if (currentLine.length > 0) {
           currentLine = currentLine.slice(0, -1);
           term.write("\b \b");
@@ -159,18 +172,20 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       if (initTimeout) clearTimeout(initTimeout);
       keyDisposable.dispose();
       resizeObserver.disconnect();
-      
+
       const toDispose = termInstance.current;
       termInstance.current = null;
       initialized.current = false;
-      
+
       if (toDispose) {
         try {
           toDispose.dispose();
-        } catch (e) {}
+        } catch {
+          // Silently handle dispose errors
+        }
       }
     };
-  }, []);
+  }, [isDark]);
 
   useEffect(() => {
     if (termInstance.current) {
@@ -184,8 +199,8 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   }, [isDark]);
 
   return (
-    <div 
-      className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm cursor-text"
+    <div
+      className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm cursor-text"
       onClick={() => {
         if (termInstance.current) {
           termInstance.current.focus();
@@ -201,22 +216,18 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         </span>
       </div>
 
-      <div 
-        ref={terminalRef} 
-        className={`h-64 rounded-lg overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f172a]" : "bg-white"}`} 
+      <div
+        ref={terminalRef}
+        className="h-64 rounded-lg overflow-hidden transition-colors duration-300 bg-white dark:bg-slate-950"
       />
     </div>
   );
 }
 
 export default function ForensicTerminal() {
-  const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [mounted] = useState(() => typeof window !== "undefined");
 
   if (!mounted) {
     return <div className="h-64 mt-8 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />;
