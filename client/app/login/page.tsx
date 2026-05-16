@@ -3,7 +3,8 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Lock, User, Terminal } from "lucide-react";
+import Link from "next/link";
+import { Eye, EyeOff, Lock, User, Terminal, BookOpen, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -84,6 +85,17 @@ export default function LoginPage() {
             Access Terminal
           </button>
         </form>
+
+        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-slate-500">
+          <Link href="/docs" className="flex items-center gap-2 hover:text-emerald-500 transition-colors">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="font-mono uppercase tracking-widest">Documentation</span>
+          </Link>
+          <a href="mailto:akshayshibu473@gmail.com" className="flex items-center gap-2 hover:text-emerald-500 transition-colors">
+            <Mail className="w-3.5 h-3.5" />
+            <span className="font-mono uppercase tracking-widest">Contact Support</span>
+          </a>
+        </div>
       </motion.div>
     </div>
   );

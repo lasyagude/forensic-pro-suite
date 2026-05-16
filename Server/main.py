@@ -5,6 +5,10 @@ import asyncio
 import tempfile
 import os
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -17,17 +21,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Forensic evidence file types — executables and scripts are explicitly excluded
 ALLOWED_EXTENSIONS = {
-    ".dd", ".img", ".e01", ".ex01", ".l01", ".s01",  # disk images
-    ".pcap", ".pcapng",                                # network captures
-    ".pdf", ".docx", ".xlsx", ".txt", ".csv", ".log", # documents / logs
-    ".jpg", ".jpeg", ".png", ".bmp", ".tiff",         # images
-    ".zip", ".tar", ".gz",                             # archives
+    ".dd", ".img", ".e01", ".ex01", ".l01", ".s01",
+    ".pcap", ".pcapng",
+    ".pdf", ".docx", ".xlsx", ".txt", ".csv", ".log",
+    ".jpg", ".jpeg", ".png", ".bmp", ".tiff",
+    ".zip", ".tar", ".gz",
 }
 
+MAX_FILE_SIZE = 500 * 1024 * 1024
 
-MAX_FILE_SIZE = 500 * 1024 * 1024  # 500 MB
 
 @app.get("/api/stats")
 async def get_case_stats():
@@ -56,19 +59,28 @@ async def get_case_stats():
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Stats endpoint error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error while fetching stats.")
+
 
 @app.post("/api/analyze")
 async def run_forensic_pipeline(file: UploadFile = File(...)):
-    try:
-        ext = os.path.splitext(file.filename or "")[1].lower()
-        if ext not in ALLOWED_EXTENSIONS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
-            )
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No filename provided.")
 
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+        )
+
+    tmp_path = None
+    try:
         content = await file.read()
+
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
         if len(content) > MAX_FILE_SIZE:
             raise HTTPException(status_code=413, detail="File exceeds the 500 MB size limit.")
@@ -77,11 +89,8 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
             tmp.write(content)
             tmp_path = tmp.name
 
-        try:
-            engine = ForensicEngine(tmp_path)
-            report = engine.run_automated_process()
-        finally:
-            os.unlink(tmp_path)
+        engine = ForensicEngine(tmp_path)
+        report = engine.run_automated_process()
 
         await asyncio.sleep(2)
 
@@ -104,7 +113,15 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Forensic pipeline error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during forensic analysis.")
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError as e:
+                logger.warning(f"Failed to cleanup temp file {tmp_path}: {str(e)}")
+
 
 if __name__ == "__main__":
     import uvicorn
