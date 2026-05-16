@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from engine import ForensicEngine
 import asyncio
@@ -33,8 +33,34 @@ ALLOWED_EXTENSIONS = {
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
 
+def get_api_user(authorization: str | None = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    token = parts[1]
+
+    admin_token = os.getenv("ADMIN_TOKEN")
+    investigator_token = os.getenv("INVESTIGATOR_TOKEN")
+
+    if admin_token and token == admin_token:
+        return {"id": "admin", "role": "admin", "token": token}
+    if investigator_token and token == investigator_token:
+        return {"id": "investigator", "role": "investigator", "token": token}
+
+    raise HTTPException(status_code=403, detail="Forbidden")
+
+
+def write_audit(entry: str):
+    try:
+        with open("server_audit.log", "a") as f:
+            f.write(entry + "\n")
+    except Exception:
+        logger.warning("Failed to write audit log")
+
 @app.get("/api/stats")
-async def get_case_stats():
+async def get_case_stats(current_user: dict = Depends(get_api_user)):
     try:
         from supabase import create_client
         url = os.getenv("SUPABASE_URL")
@@ -65,7 +91,7 @@ async def get_case_stats():
 
 
 @app.post("/api/analyze")
-async def run_forensic_pipeline(file: UploadFile = File(...)):
+async def run_forensic_pipeline(file: UploadFile = File(...), current_user: dict = Depends(get_api_user)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided.")
 
@@ -78,6 +104,7 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
 
     tmp_path = None
     try:
+        user_id = current_user.get("id")
         sha256 = hashlib.sha256()
         md5 = hashlib.md5()
         total = 0
@@ -101,6 +128,10 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
         pre_hashes = {"sha256": sha256.hexdigest(), "md5": md5.hexdigest()}
+        # only investigators or admins can upload
+        if current_user.get("role") not in ("investigator", "admin"):
+            raise HTTPException(status_code=403, detail="Insufficient role")
+
         engine = ForensicEngine(tmp_path, precomputed_hashes=pre_hashes)
         report = engine.run_automated_process()
 
@@ -128,11 +159,15 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
         logger.error(f"Forensic pipeline error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error during forensic analysis.")
     finally:
+        # cleanup
         if tmp_path and os.path.exists(tmp_path):
             try:
                 os.unlink(tmp_path)
             except OSError as e:
                 logger.warning(f"Failed to cleanup temp file {tmp_path}: {str(e)}")
+        # audit
+        audit_entry = f"user={user_id if 'user_id' in locals() else 'unknown'} filename={getattr(file, 'filename', '')} size={total if 'total' in locals() else 0}"
+        write_audit(audit_entry)
 
 
 if __name__ == "__main__":
