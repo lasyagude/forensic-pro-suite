@@ -9,19 +9,17 @@ import { useTheme } from "next-themes";
 function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const termInstance = useRef<Terminal | null>(null);
-  const currentLineRef = useRef("");
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
 
     switch (command) {
       case "help":
-        term.writeln("Essential Aliases: scan, packets, files, timeline, memory");
-        term.writeln("Advanced Syntax: autopsy, wireshark --cli, fls, mactime, vol.py --info");
-        term.writeln("System: clear");
+        term.writeln(
+          "Commands: autopsy, wireshark --cli, fls <image>, mactime, vol.py --info, hash <file>, clear"
+        );
         break;
 
-      case "scan":
       case "autopsy":
         term.writeln("[*] Initializing Sleuth Kit engine...");
         term.writeln("[*] Mounting /dev/sda1 as read-only...");
@@ -31,9 +29,6 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.writeln("[+] Scan complete. Open Autopsy GUI for full report.");
         break;
 
-        break;
-
-      case "packets":
       case "wireshark --cli":
         term.writeln("[*] Capturing on eth0 (promiscuous mode)...");
         term.writeln("  Frame 1: 192.168.1.5 -> 8.8.8.8 DNS Query: forensics.gov");
@@ -42,7 +37,6 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.writeln("[!] Suspicious outbound connection on port 4444 detected.");
         break;
 
-      case "files":
       case "fls":
       case "fls <image>":
         term.writeln("r/r 5:    $MFT");
@@ -53,14 +47,12 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.writeln("r/r 130:  payload.exe (deleted)");
         break;
 
-      case "timeline":
       case "mactime":
         term.writeln("Mon Jan 13 2025 09:14:22 4096 m... d/d 11 /evidence");
         term.writeln("Mon Jan 13 2025 09:15:01 2048 .a.. r/r 128 /evidence/suspect_chat_logs.txt");
         term.writeln("Mon Jan 13 2025 09:15:44 512 mac. r/r 129 /evidence/payload.exe");
         break;
 
-      case "memory":
       case "vol.py --info":
         term.writeln("[*] Volatility 3 Framework");
         term.writeln("[+] Profile: Win10x64_19041");
@@ -73,11 +65,20 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.clear();
         break;
 
+      case "hash":
+      case "hash <file>":
+        term.writeln("[*] Computing forensic hashes for evidence file...");
+        term.writeln("[+] SHA-256: a81f3c72b9e4d6f1c0a5827e3d49b610f7e2c8a5d3b94f16e0c7d2a8b5e3f194");
+        term.writeln("[+] MD5:     7f8a3b2c1d0e9f4a5b6c7d8e9f0a1b2c");
+        term.writeln("[+] SHA-1:   3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d");
+        term.writeln("[+] Integrity: VERIFIED - No tampering detected.");
+        break;
+
       case "":
         break;
 
       default:
-        term.writeln(`bash: ${command}: command not found. Type "help" for a list of simplified aliases.`);
+        term.writeln(`bash: ${command}: command not found. Type "help" for available commands.`);
     }
   };
 
@@ -108,112 +109,83 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
     termInstance.current = term;
 
     let initTimeout: NodeJS.Timeout;
-    let pasteListenerAttached = false;
-
-    // Explicitly handle DOM paste event on the terminal's internal textarea
-    const handlePaste = (e: ClipboardEvent) => {
-      e.preventDefault();
-      const text = e.clipboardData?.getData("text");
-      if (text && termInstance.current) {
-        const sanitized = text.replace(/[\r\n]+/g, "");
-        term.write(sanitized);
-        currentLineRef.current += sanitized;
-      }
-    };
-
     const checkInterval = setInterval(() => {
-      // Use a local flag to ensure we only open ONCE per effect mount
-      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && !term.element) {
+      if (terminalRef.current && terminalRef.current.offsetWidth > 0 && initialized.current) {
         clearInterval(checkInterval);
-        
+
         try {
           term.open(terminalRef.current);
-          
-          // Wait for xterm to create its internal textarea and perform initial fit
+
           initTimeout = setTimeout(() => {
             if (termInstance.current && terminalRef.current && terminalRef.current.offsetParent) {
               try {
                 fitAddon.fit();
                 termInstance.current.focus();
-                
-                // Attach paste listener to the internal textarea
-                const textarea = terminalRef.current.querySelector(".xterm-helper-textarea");
-                if (textarea && !pasteListenerAttached) {
-                  textarea.addEventListener("paste", handlePaste as any);
-                  pasteListenerAttached = true;
-                }
-
                 termInstance.current.writeln("\x1b[1;32m--- FORENSIC_PRO_TERMINAL v1.0.4 ---\x1b[0m");
                 termInstance.current.writeln('Type "help" to see available forensic commands.');
                 termInstance.current.write("\r\n$ ");
-              } catch (e) {}
+              } catch {
+                // Silently handle fit/focus errors
+              }
             }
-          }, 200);
-        } catch (e) {}
+          }, 100);
+        } catch {
+          // Fallback if open fails
+        }
       }
-    }, 100);
+    }, 50);
 
     const resizeObserver = new ResizeObserver(() => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
       try {
         fitAddon.fit();
-      } catch (e) {}
+      } catch {
+        // Silently handle resize errors
+      }
     });
     resizeObserver.observe(terminalRef.current);
 
-    // Low-level keyboard interceptor to ensure Ctrl+V reaches the paste event
-    term.attachCustomKeyEventHandler((e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        return true; 
-      }
-      return true;
-    });
-
-    const dataDisposable = term.onData((data) => {
+    let currentLine = "";
+    const keyDisposable = term.onKey(({ key, domEvent }) => {
       if (!termInstance.current || !terminalRef.current || !terminalRef.current.offsetParent) return;
+      const char = key;
+      const printable = !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
 
-      const char = data;
-      if (char === "\r") { // Enter
+      if (domEvent.keyCode === 13) {
         term.write("\r\n");
-        handleCommand(currentLineRef.current, term);
-        currentLineRef.current = "";
+        handleCommand(currentLine, term);
+        currentLine = "";
         term.write("$ ");
-      } else if (char === "\x7f") { // Backspace (DEL)
-        if (currentLineRef.current.length > 0) {
-          currentLineRef.current = currentLineRef.current.slice(0, -1);
+      } else if (domEvent.keyCode === 8) {
+        if (currentLine.length > 0) {
+          currentLine = currentLine.slice(0, -1);
           term.write("\b \b");
         }
-      } else if (data.length === 1) {
-        const code = char.charCodeAt(0);
-        if (code >= 32 && code <= 126) {
-          currentLineRef.current += char;
-          term.write(char);
-        }
+      } else if (printable && char.length === 1) {
+        currentLine += char;
+        term.write(char);
       }
     });
 
     return () => {
       clearInterval(checkInterval);
-      clearTimeout(initTimeout);
-      dataDisposable.dispose();
+      if (initTimeout) clearTimeout(initTimeout);
+      keyDisposable.dispose();
       resizeObserver.disconnect();
-      
-      const textarea = terminalRef.current?.querySelector(".xterm-helper-textarea");
-      if (textarea) {
-        textarea.removeEventListener("paste", handlePaste as any);
-      }
-      
+
       const toDispose = termInstance.current;
       termInstance.current = null;
       initialized.current = false;
-      
+
       if (toDispose) {
         try {
           toDispose.dispose();
-        } catch (e) {}
+        } catch {
+          // Silently handle dispose errors
+        }
       }
     };
-  }, []);
+  }, [isDark]);
 
   useEffect(() => {
     if (termInstance.current) {
@@ -227,74 +199,38 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   }, [isDark]);
 
   return (
-    <div 
-      className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm cursor-text"
+    <div
+      className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mt-8 shadow-sm cursor-text"
       onClick={() => {
         if (termInstance.current) {
           termInstance.current.focus();
         }
       }}
     >
-      <div className="flex items-center gap-2 mb-4 px-1 border-b border-slate-100 dark:border-slate-800/50 pb-3">
-        <div className="flex gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-red-500/80"></div>
-          <div className="h-2.5 w-2.5 rounded-full bg-amber-500/80"></div>
-          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/80"></div>
-        </div>
-        <span className="text-[9px] text-emerald-500 font-mono ml-4 uppercase tracking-[0.2em] font-bold">
+      <div className="flex items-center gap-2 mb-3 px-2 border-b border-slate-100 dark:border-slate-800/50 pb-2">
+        <div className="h-3 w-3 rounded-full bg-red-500/80 shadow-sm shadow-red-500/20"></div>
+        <div className="h-3 w-3 rounded-full bg-amber-500/80 shadow-sm shadow-amber-500/20"></div>
+        <div className="h-3 w-3 rounded-full bg-emerald-500/80 shadow-sm shadow-emerald-500/20"></div>
+        <span className="text-[10px] text-emerald-500 font-mono ml-4 uppercase tracking-[0.2em] font-bold">
           TERMINAL_ACTIVE
         </span>
       </div>
 
-      <div 
-        ref={terminalRef} 
-        className={`h-64 rounded-lg overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f172a]" : "bg-white"}`} 
+      <div
+        ref={terminalRef}
+        className="h-64 rounded-lg overflow-hidden transition-colors duration-300 bg-white dark:bg-slate-950"
       />
-
-      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
-        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-3 px-1">Quick Actions</p>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: "Run Scan", cmd: "scan" },
-            { label: "Analyze Packets", cmd: "packets" },
-            { label: "List Files", cmd: "files" },
-            { label: "View Timeline", cmd: "timeline" },
-            { label: "Check Memory", cmd: "memory" },
-            { label: "Clear", cmd: "clear" },
-          ].map((action) => (
-            <button
-              key={action.cmd}
-              onClick={() => {
-                if (termInstance.current) {
-                  // Manually trigger command for Quick Actions
-                  termInstance.current.writeln(action.cmd);
-                  handleCommand(action.cmd, termInstance.current);
-                  termInstance.current.write("$ ");
-                  currentLineRef.current = ""; // Clear any partial manual input
-                }
-              }}
-              className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-bold text-slate-500 hover:text-emerald-500 hover:border-emerald-500/30 transition-all active:scale-95"
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
 
 export default function ForensicTerminal() {
-  const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [mounted] = useState(() => typeof window !== "undefined");
 
   if (!mounted) {
-    return <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />;
+    return <div className="h-64 mt-8 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />;
   }
 
   return <ForensicTerminalContent isDark={isDark} />;
