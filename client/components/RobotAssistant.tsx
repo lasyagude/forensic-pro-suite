@@ -42,7 +42,7 @@ export default function RobotAssistant() {
 
       const data = await response.json();
       setMessages(prev => [...prev, { role: "model", content: data.response }]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, { role: "model", content: "I encountered an error connecting to the intelligence network. Please try again." }]);
     } finally {
       setIsLoading(false);
@@ -125,7 +125,7 @@ export default function RobotAssistant() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-8 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
+        className="fixed bottom-6 right-8 w-12 h-12 sm:w-14 sm:h-14 bg-linear-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
       >
         <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
       </motion.div>

@@ -16,37 +16,9 @@ import { supabase } from "@/lib/supabase";
 import { generateForensicReport } from "@/lib/reportGenerator";
 import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
-import TutorialOverlay from "@/components/TutorialOverlay";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
-import { 
-  Shield, 
-  Search, 
-  LogOut, 
-  Clock, 
-  FileText, 
-  Download, 
-  Activity, 
-  MapPin, 
-  ChevronRight,
-  Database,
-  Archive,
-  Menu,
-  X,
-  FileDown,
-  ExternalLink,
-  Cpu,
-  Monitor,
-  Moon,
-  Sun,
-  User,
-  Skull, 
-  Save, 
-  Folder, 
-  Zap, 
-  AlertTriangle, 
-  LayoutDashboard
-} from "lucide-react";
+import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText } from "lucide-react";
 
 interface CaseRecord {
   id: string;
@@ -201,7 +173,7 @@ export default function DashboardPage() {
     },
   ];
 
-  const handleToolClick = (tool: any) => {
+  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean }) => {
     if (tool.special) {
       runAutomatedFlow();
     } else {
@@ -297,7 +269,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-wrap justify-center items-center gap-4">
           <ThemeToggle />
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 md:p-3 rounded-xl text-center min-w-[80px]">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 md:p-3 rounded-xl text-center min-w-20">
             <p className="text-[8px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-1">Archive</p>
             <p className="text-lg md:text-xl font-mono text-emerald-600 dark:text-emerald-400">{caseHistory.length}</p>
           </div>
@@ -307,7 +279,7 @@ export default function DashboardPage() {
               {session?.user?.name?.[0] || "A"}
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-[10px] font-bold text-slate-300 truncate max-w-[80px] sm:max-w-[120px]">
+              <span className="text-[10px] font-bold text-slate-300 truncate max-w-20 sm:max-w-30">
                 {session?.user?.email}
               </span>
               <button
@@ -354,7 +326,7 @@ export default function DashboardPage() {
                 transition={{ delay: index * 0.05 }}
                 id={tool.id}
                 onClick={() => handleToolClick(tool)}
-                className={`bg-slate-50 dark:bg-slate-900 border ${tool.special ? "border-emerald-500/50" : "border-slate-200 dark:border-slate-800"} p-4 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative overflow-hidden group min-h-[120px] shadow-sm`}
+                className={`bg-slate-50 dark:bg-slate-900 border ${tool.special ? "border-emerald-500/50" : "border-slate-200 dark:border-slate-800"} p-4 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative overflow-hidden group min-h-30 shadow-sm`}
               >
                 {tool.special && isAnalyzing && (
                   <motion.div
@@ -482,7 +454,7 @@ export default function DashboardPage() {
               </p>
             )}
 
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
               <AnimatePresence>
                 {(caseHistory.length > 0 ? caseHistory : demoCaseRecords).map((item) => (
                   <motion.div
@@ -492,7 +464,7 @@ export default function DashboardPage() {
                     <div className="flex flex-col gap-1 w-full sm:w-auto">
                       <div className="flex items-center gap-3">
                         <span className="text-emerald-500 opacity-50 font-mono text-[10px]">ID_{item.case_id?.slice(0, 5)}</span>
-                        <span className="font-mono text-slate-900 dark:text-slate-100 truncate max-w-[150px] sm:max-w-[200px]">{item.filename}</span>
+                        <span className="font-mono text-slate-900 dark:text-slate-100 truncate max-w-37.5 sm:max-w-50">{item.filename}</span>
                       </div>
                       <span className="text-slate-500 font-mono text-[9px] block sm:hidden">
                         {item.hash_value.slice(0, 24)}...
