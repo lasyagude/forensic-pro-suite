@@ -92,7 +92,7 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
                     continue
                 if total > MAX_FILE_SIZE:
                     raise HTTPException(status_code=413, detail="File exceeds the 500 MB size limit.")
-                tmp.write(chunk)
+                await asyncio.to_thread(tmp.write, chunk)
                 sha256.update(chunk)
                 md5.update(chunk)
             tmp_path = tmp.name
