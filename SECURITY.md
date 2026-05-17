@@ -4,10 +4,10 @@
 
 We are committed to maintaining the security of the **Forensic Pro Suite**. The following versions are currently receiving security updates:
 
-| Version | Supported |
-| ------- | --------- |
-| v1.x    | ✅ Yes       |
-| < v1.x  | ❌ No        |
+| Version  | Supported          |
+| -------- | ------------------ |
+| v1.x     | ✅ Yes             |
+| < v1.x   | ❌ No              |
 
 ## 🐛 Reporting a Vulnerability
 

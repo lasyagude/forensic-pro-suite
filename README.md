@@ -2,8 +2,8 @@
 
 A high-fidelity Digital Forensics Workstation enhanced for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
 
-| Resource             | Link                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
+| Resource               | Link                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
 | 🚀 **Live Workstation** | [https://forensic-pro-suite-new.vercel.app/](https://forensic-pro-suite-new.vercel.app/)         |
 
 ## 🛡️ Advanced Forensic Enhancements (The "Strong" Version)
@@ -47,31 +47,31 @@ This version has been overhauled to provide military-grade forensic reliability:
 
 The embedded terminal (`investigator_cli_v1`) allows you to simulate high-level forensic triage. Type `help` in the dashboard terminal to see these in action:
 
-| Command            | Forensic Function | Simulation Output                                                        |
-| ------------------ | ----------------- | ------------------------------------------------------------------------ |
-| `autopsy`          | 🔬 Sleuth Kit Engine | Partition table analysis and deleted file detection.                     |
-| `wireshark --cli`  | 🌐 Network Triage    | Live packet capture simulation with DNS threat detection.                |
-| `vol.py --info`    | 🧠 Memory Forensics  | Volatility 3 framework output showing suspicious processes.              |
-| `fls <image>`      | 📁 File Listing      | Inode and file system record extraction from a disk image.               |
-| `mactime`          | ⏱️ Timeline Analysis | Temporal evidence visualization (Modified/Accessed/Created).             |
-| `clear`            | 🧹 UI Management     | Flushes the terminal buffer.                                             |
+| Command            | Forensic Function      | Simulation Output                                                        |
+| ------------------ | ---------------------- | ------------------------------------------------------------------------ |
+| `autopsy`          | 🔬 Sleuth Kit Engine   | Partition table analysis and deleted file detection.                     |
+| `wireshark --cli`  | 🌐 Network Triage      | Live packet capture simulation with DNS threat detection.                |
+| `vol.py --info`    | 🧠 Memory Forensics    | Volatility 3 framework output showing suspicious processes.              |
+| `fls <image>`      | 📁 File Listing        | Inode and file system record extraction from a disk image.               |
+| `mactime`          | ⏱️ Timeline Analysis   | Temporal evidence visualization (Modified/Accessed/Created).             |
+| `clear`            | 🧹 UI Management       | Flushes the terminal buffer.                                             |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer      | Technology                                            |
-| ---------- | ----------------------------------------------------- |
-| 🎨 Frontend   | Next.js 16, React 19, TypeScript, Tailwind CSS v4     |
-| 🔐 Auth       | NextAuth.js v4 (Credentials Provider)                 |
-| 🎬 Animations | Framer Motion                                         |
-| 🗺️ Maps       | React-Simple-Maps, D3-Geo, TopoJSON                   |
-| 📊 Charts     | Recharts                                              |
-| 💻 Terminal   | Xterm.js + xterm-addon-fit                            |
-| 📄 PDF        | jsPDF, jspdf-autotable                                |
-| ⚙️ Backend    | FastAPI (Python), Uvicorn, python-multipart           |
-| 🗄️ Database   | Supabase (PostgreSQL + RLS)                           |
-| 🎨 Icons      | Lucide React                                          |
+| Layer        | Technology                                            |
+| ------------ | ----------------------------------------------------- |
+| 🎨 Frontend  | Next.js 16, React 19, TypeScript, Tailwind CSS v4     |
+| 🔐 Auth      | NextAuth.js v4 (Credentials Provider)                 |
+| 🎬 Animations| Framer Motion                                         |
+| 🗺️ Maps      | React-Simple-Maps, D3-Geo, TopoJSON                   |
+| 📊 Charts    | Recharts                                              |
+| 💻 Terminal  | Xterm.js + xterm-addon-fit                            |
+| 📄 PDF       | jsPDF, jspdf-autotable                                |
+| ⚙️ Backend   | FastAPI (Python), Uvicorn, python-multipart           |
+| 🗄️ Database  | Supabase (PostgreSQL + RLS)                           |
+| 🎨 Icons     | Lucide React                                          |
 
 ## 📁 Project Structure
 
