@@ -18,7 +18,7 @@ function sanitize(value: string): string {
   return value ? value.replace(/[<>&"'/\\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
 }
 
-export const generateForensicReport = (data: ForensicReportData) => {
+export const generateForensicReport = async (data: ForensicReportData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -87,10 +87,95 @@ export const generateForensicReport = (data: ForensicReportData) => {
   addHeader(doc);
   addWatermark(doc);
 
+  interface CaseSummary {
+    overview: string;
+    keyFindings: string[];
+    riskAssessment: string;
+    suggestedNextSteps: string[];
+  }
+
+  // Generate AI summary
+  let aiSummary: CaseSummary | null = null;
+  try {
+    const response = await fetch("/api/summarize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ caseData: data, type: "detailed" }),
+    });
+
+    if (response.ok) {
+      const json = await response.json();
+      aiSummary = json.summary as CaseSummary;
+    } else {
+      console.error('Failed to fetch AI summary:', await response.text());
+    }
+  } catch (error) {
+    console.error('Failed to generate AI summary:', error);
+  }
+
   doc.setFontSize(14);
   doc.setTextColor(15, 23, 42);
   doc.setFont('helvetica', 'bold');
   doc.text('CHAIN-OF-CUSTODY EVIDENCE REPORT', 15, 50);
+
+  // AI Case Summary Section
+  if (aiSummary) {
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text('AI-Powered Case Analysis', 15, 60);
+
+    // Overview
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 41, 59);
+    doc.text('Overview:', 15, 67);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    const overviewLines = doc.splitTextToSize(aiSummary.overview, pageWidth - 30);
+    doc.text(overviewLines, 15, 73);
+
+    const overviewHeight = overviewLines.length * 4;
+    let currentY = 73 + overviewHeight + 5;
+
+    // Key Findings
+    if (aiSummary.keyFindings.length > 0) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 41, 59);
+      doc.text('Key Findings:', 15, currentY);
+      currentY += 6;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(0, 0, 0);
+      aiSummary.keyFindings.slice(0, 5).forEach((finding) => {
+        const findingLines = doc.splitTextToSize(`• ${finding}`, pageWidth - 30);
+        doc.text(findingLines, 15, currentY);
+        currentY += findingLines.length * 3 + 1;
+      });
+      currentY += 2;
+    }
+
+    // Risk Assessment
+    if (aiSummary.riskAssessment) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 41, 59);
+      doc.text('Risk Assessment:', 15, currentY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(0, 0, 0);
+      const riskLines = doc.splitTextToSize(aiSummary.riskAssessment, pageWidth - 30);
+      doc.text(riskLines, 15, currentY + 6);
+      currentY += riskLines.length * 4 + 10;
+    }
+
+    // Add page break if content is getting long
+    if (currentY > pageHeight - 60) {
+      doc.addPage();
+      currentY = 20;
+    }
+  }
 
   // 1. Evidence Metadata Table
   autoTable(doc, {
@@ -207,4 +292,3 @@ export const generateForensicReport = (data: ForensicReportData) => {
 
   doc.save(`SENTINEL_REPORT_${sanitize(data.case_id)}.pdf`);
 };
-

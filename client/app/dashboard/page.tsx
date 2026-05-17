@@ -18,7 +18,8 @@ import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
-import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText } from "lucide-react";
+import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, Brain, Loader, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 interface CaseRecord {
   id: string;
@@ -93,6 +94,8 @@ export default function DashboardPage() {
   const [exportStatus, setExportStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [summarizingCaseId, setSummarizingCaseId] = useState<string | null>(null);
+  const [caseSummaries, setCaseSummaries] = useState<Record<string, string>>({});
 
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
@@ -128,11 +131,68 @@ export default function DashboardPage() {
     }
   };
 
+  const handleGenerateAISummary = async (caseData: CaseRecord) => {
+    if (caseSummaries[caseData.case_id]) return;
+
+    setSummarizingCaseId(caseData.case_id);
+    try {
+      const response = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          caseData: {
+            case_id: caseData.case_id,
+            filename: caseData.filename,
+            hash_value: caseData.hash_value,
+            investigator: caseData.investigator,
+            status: caseData.status,
+            created_at: caseData.created_at,
+            file_size: caseData.file_size,
+            creation_date: caseData.creation_date,
+            modification_date: caseData.modification_date,
+            notes: caseData.notes,
+          },
+          type: "quick",
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCaseSummaries((prev) => ({
+          ...prev,
+          [caseData.case_id]: data.summary,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to generate summary:", error);
+    } finally {
+      setSummarizingCaseId(null);
+    }
+  };
+
+  const handleGenerateReportWithAI = async (caseData: CaseRecord) => {
+    setSummarizingCaseId(caseData.case_id);
+    try {
+      await generateForensicReport(caseData);
+    } finally {
+      setSummarizingCaseId(null);
+    }
+  };
+
   const forensicTools = [
-    { 
-      name: "EnCase", 
-      cat: "Disk Analysis", 
-      icon: <Search className="w-6 h-6 text-blue-400" />, 
+    {
+      name: "AI Summarizer",
+      cat: "Intelligent Analysis",
+      icon: <Sparkles className="w-6 h-6 text-purple-400" />,
+      id: "tool-ai-summary",
+      link: "/ai-summary",
+      special: true,
+      tasks: ["Batch Analysis", "Smart Export", "Focus Filtering", "History Tracking"]
+    },
+    {
+      name: "EnCase",
+      cat: "Disk Analysis",
+      icon: <Search className="w-6 h-6 text-blue-400" />,
       id: "tool-encase",
       tasks: ["Mounting Disk Image", "Verifying MD5 Hash", "Parsing Partition Table", "File System Reconstruction"]
     },
@@ -174,8 +234,10 @@ export default function DashboardPage() {
     },
   ];
 
-  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean }) => {
-    if (tool.special) {
+  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean; link?: string }) => {
+    if (tool.link) {
+      window.location.href = tool.link;
+    } else if (tool.special && tool.id === "tool-automated-flow") {
       runAutomatedFlow();
     } else {
       setSelectedTool(tool);
@@ -211,10 +273,16 @@ export default function DashboardPage() {
       formData.append("file", file);
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/analyze`, {
+        const response = await fetch("/api/analyze", {
           method: "POST",
           body: formData,
         });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Forensic analysis failed: ${errorText}`);
+        }
+
         const data: AnalysisResult = await response.json();
 
         const { error } = await supabase.from("cases").insert([
@@ -489,10 +557,10 @@ export default function DashboardPage() {
             <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
               <AnimatePresence>
                 {(filteredCases.length > 0 ? filteredCases : searchQuery ? [] : allCases).map((item) => (
-                  <motion.div
-                    key={item.id}
-                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm gap-4"
-                  >
+                  <div key={item.id}>
+                    <motion.div
+                      className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] group hover:border-emerald-500/30 transition-colors shadow-sm gap-4"
+                    >
                     <div className="flex flex-col gap-1 w-full sm:w-auto">
                       <div className="flex items-center gap-3">
                         <span className="text-emerald-500 opacity-50 font-mono text-[10px]">ID_{item.case_id?.slice(0, 5)}</span>
@@ -522,12 +590,30 @@ export default function DashboardPage() {
                       
                       <div className="flex gap-2">
                         <button
-                          onClick={() => generateForensicReport(item)}
-                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase flex items-center gap-1"
-                          title="Generate Comprehensive Chain-of-Custody Report"
+                          onClick={() => handleGenerateReportWithAI(item)}
+                          disabled={summarizingCaseId === item.case_id}
+                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded border border-emerald-500/20 text-[9px] font-bold uppercase flex items-center gap-1 disabled:opacity-50"
+                          title="Generate Comprehensive Chain-of-Custody Report with AI Analysis"
                         >
-                          <FileText className="w-3 h-3" />
+                          {summarizingCaseId === item.case_id ? (
+                            <Loader className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <FileText className="w-3 h-3" />
+                          )}
                           <span>Report</span>
+                        </button>
+                        <button
+                          onClick={() => handleGenerateAISummary(item)}
+                          disabled={summarizingCaseId === item.case_id || !!caseSummaries[item.case_id]}
+                          className="sm:opacity-0 sm:group-hover:opacity-100 transition-all bg-purple-500/10 hover:bg-purple-500 text-purple-300 hover:text-white px-2 py-1 rounded border border-purple-500/20 text-[9px] font-bold uppercase flex items-center gap-1 disabled:opacity-50"
+                          title="Generate AI Summary of Case"
+                        >
+                          {summarizingCaseId === item.case_id ? (
+                            <Loader className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Brain className="w-3 h-3" />
+                          )}
+                          <span>AI Summary</span>
                         </button>
                         <button
                           onClick={() => exportEvidenceBundle(item)}
@@ -537,7 +623,19 @@ export default function DashboardPage() {
                         </button>
                       </div>
                     </div>
-                  </motion.div>
+                    </motion.div>
+                    {caseSummaries[item.case_id] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mx-4 mb-4 mt-2 p-3 bg-purple-500/5 border border-purple-500/20 rounded-lg text-[11px]"
+                      >
+                        <p className="text-[10px] font-bold text-purple-300 mb-2 uppercase tracking-wider">AI Summary</p>
+                        <p className="text-slate-300 leading-relaxed">{caseSummaries[item.case_id]}</p>
+                      </motion.div>
+                    )}
+                  </div>
                 ))}
                 {searchQuery && filteredCases.length === 0 && (
                   <motion.div
