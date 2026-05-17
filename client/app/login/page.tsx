@@ -3,33 +3,65 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Eye, EyeOff, Lock, User, Terminal, BookOpen, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, User, Terminal, AlertCircle } from "lucide-react";
+
+function validateEmail(email: string): boolean {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false });
   const router = useRouter();
+
+  const emailError = touched.email && email.length > 0 && !validateEmail(email);
+  const passwordError = touched.password && password.length > 0 && password.length < 6;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    setError("");
 
-    if (result?.ok) {
-      router.push("/dashboard"); 
-    } else {
-      alert("Invalid Credentials. Use admin@forensics.com / password123");
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.ok) {
+        router.push("/dashboard");
+      } else if (result?.error) {
+        setError("Invalid credentials. Please check your email and password.");
+      } else {
+        setError("Authentication service unavailable. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center p-4 transition-colors duration-300">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-emerald-500/30 shadow-xl w-full max-w-md"
@@ -44,59 +76,95 @@ export default function LoginPage() {
           <p className="text-slate-500 text-[10px] mt-1 font-mono uppercase tracking-[0.2em]">Secure Investigator Portal</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-5 flex items-center gap-2 p-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-mono"
+            role="alert"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </motion.div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div className="space-y-2">
             <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
               <User className="w-3 h-3" /> Email Address
             </label>
-            <input 
-              type="email" 
-              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500/50 transition-all font-mono shadow-sm"
+            <input
+              type="email"
+              className={`w-full bg-white dark:bg-slate-950 border rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none transition-all font-mono shadow-sm ${
+                emailError
+                  ? "border-red-500/50 focus:border-red-500"
+                  : "border-slate-200 dark:border-slate-800 focus:border-emerald-500/50"
+              }`}
               placeholder="agent@forensics.com"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
+              aria-invalid={emailError}
+              aria-describedby={emailError ? "email-error" : undefined}
               required
             />
+            {emailError && (
+              <p id="email-error" className="text-red-400 text-[10px] font-mono" role="alert">
+                Please enter a valid email address.
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
               <Lock className="w-3 h-3" /> Password
             </label>
             <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500/50 transition-all font-mono shadow-sm"
+              <input
+                type={showPassword ? "text" : "password"}
+                className={`w-full bg-white dark:bg-slate-950 border rounded-xl p-3 pr-10 text-sm text-slate-900 dark:text-white focus:outline-none transition-all font-mono shadow-sm ${
+                  passwordError
+                    ? "border-red-500/50 focus:border-red-500"
+                    : "border-slate-200 dark:border-slate-800 focus:border-emerald-500/50"
+                }`}
                 placeholder="••••••••"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+                aria-invalid={passwordError}
+                aria-describedby={passwordError ? "password-error" : undefined}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+            {passwordError && (
+              <p id="password-error" className="text-red-400 text-[10px] font-mono" role="alert">
+                Password must be at least 6 characters.
+              </p>
+            )}
           </div>
-          <button 
+          <button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/20 uppercase text-xs tracking-widest mt-4 active:scale-[0.98]"
+            disabled={isLoading}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/20 uppercase text-xs tracking-widest mt-4 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2"
           >
-            Access Terminal
+            {isLoading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Authenticating...
+              </>
+            ) : (
+              "Access Terminal"
+            )}
           </button>
         </form>
-
-        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-slate-500">
-          <Link href="/docs" className="flex items-center gap-2 hover:text-emerald-500 transition-colors">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span className="font-mono uppercase tracking-widest">Documentation</span>
-          </Link>
-          <a href="mailto:akshayshibu473@gmail.com" className="flex items-center gap-2 hover:text-emerald-500 transition-colors">
-            <Mail className="w-3.5 h-3.5" />
-            <span className="font-mono uppercase tracking-widest">Contact Support</span>
-          </a>
-        </div>
       </motion.div>
     </div>
   );
-}
+}
