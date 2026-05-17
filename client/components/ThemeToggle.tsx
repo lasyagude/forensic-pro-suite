@@ -1,14 +1,20 @@
 "use client";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted] = useState(() => typeof window !== "undefined");
+  const [mounted, setMounted] = useState(false);
+   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return <div className="p-2.5 w-10 h-10" />;
+  }
 
   return (
     <motion.button
