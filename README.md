@@ -186,3 +186,8 @@ Password: password123
 4. 🗄️ **Examination:** Case records persisted to Supabase with investigator attribution.
 5. 🌍 **Analysis:** Threat nodes visualized on the geospatial map.
 6. 📄 **Reporting:** Per-case PDF chain-of-custody report generated client-side.
+
+###    Contributors
+
+<!-- CONTRIBUTORS_START -->
+<!-- CONTRIBUTORS_END -->
