@@ -65,6 +65,15 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.clear();
         break;
 
+      case "hash":
+      case "hash <file>":
+        term.writeln("[*] Computing forensic hashes for evidence file...");
+        term.writeln("[+] SHA-256: a81f3c72b9e4d6f1c0a5827e3d49b610f7e2c8a5d3b94f16e0c7d2a8b5e3f194");
+        term.writeln("[+] MD5:     7f8a3b2c1d0e9f4a5b6c7d8e9f0a1b2c");
+        term.writeln("[+] SHA-1:   3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d");
+        term.writeln("[+] Integrity: VERIFIED - No tampering detected.");
+        break;
+
       case "":
         break;
 
