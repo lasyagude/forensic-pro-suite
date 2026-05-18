@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Shield, Loader2, Lock } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,8 +28,11 @@ export default function Preloader() {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-9999 bg-slate-950 flex flex-col items-center justify-center p-6"
+          className="fixed inset-0 z-9999 bg-white dark:bg-slate-950 text-slate-900 dark:text-white flex flex-col items-center justify-center p-6 transition-colors duration-300"
         >
+          <div className="absolute top-6 right-6 z-[10000]">
+            <ThemeToggle />
+          </div>
           <div className="relative mb-8">
             <motion.div
               animate={{ 
@@ -52,7 +56,7 @@ export default function Preloader() {
           </div>
 
           <div className="text-center space-y-2">
-            <h2 className="text-xl font-bold text-white tracking-widest uppercase font-mono">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-widest uppercase font-mono">
               Sentinel Forensics
             </h2>
             <div className="flex items-center justify-center gap-2 text-emerald-500/60 font-mono text-[10px] uppercase tracking-tighter">
@@ -61,7 +65,7 @@ export default function Preloader() {
             </div>
           </div>
 
-          <div className="mt-8 w-64 h-1 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+          <div className="mt-8 w-64 h-1 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -71,15 +75,15 @@ export default function Preloader() {
 
           <div className="mt-12 grid grid-cols-3 gap-8 opacity-60">
              <div className="flex flex-col items-center gap-2 group transition-all duration-500 hover:opacity-100">
-                <Lock className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                <Lock className="w-4 h-4 text-slate-700 dark:text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                 <span className="text-[8px] font-mono text-slate-200 uppercase tracking-widest">SSL_ENCRYPT</span>
              </div>
              <div className="flex flex-col items-center gap-2 group transition-all duration-500 hover:opacity-100">
-                <Shield className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                <Shield className="w-4 h-4 text-slate-700 dark:text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                 <span className="text-[8px] font-mono text-slate-200 uppercase tracking-widest">AES_256</span>
              </div>
              <div className="flex flex-col items-center gap-2 group transition-all duration-500 hover:opacity-100">
-                <Loader2 className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                <Loader2 className="w-4 h-4 text-slate-700 dark:text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                 <span className="text-[8px] font-mono text-slate-200 uppercase tracking-widest">SHA_VAL</span>
              </div>
           </div>

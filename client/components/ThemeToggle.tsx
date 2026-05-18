@@ -14,13 +14,15 @@ export default function ThemeToggle() {
     setMounted(true);
   }, []);
   const { theme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const [mounted, setMounted] = useState(false);
+   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return <div className="p-2.5 w-10 h-10" />;
+  }
 
   const currentTheme = theme === "system" ? resolvedTheme : theme;
 
