@@ -37,7 +37,6 @@ ALLOWED_EXTENSIONS = {
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
-
 @app.get("/api/stats")
 async def get_case_stats():
     try:
@@ -103,6 +102,7 @@ async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
             "modified": report['metadata']['modified'],
             "accessed": report['metadata']['accessed'],
             "permissions": report['metadata']['permissions'],
+            "exif_metadata": report['metadata']['exif'],
             "magic_signature": report['metadata']['magic_signature'],
             "threat_level": report['threat_level'],
             "status": "COMPLETED",
