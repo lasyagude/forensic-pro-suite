@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, X, Loader2 } from "lucide-react";
+import { Bot, Send, X, Loader2, Trash2 } from "lucide-react";
 
 interface Message {
   role: "user" | "model";
@@ -13,9 +13,36 @@ export default function RobotAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     { role: "model", content: "Investigator, I am your Forensic AI Assistant. How can I guide you through the Forensic Pro Suite today?" }
   ]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("forensic_chat_history");
+      if (saved) {
+        setMessages(JSON.parse(saved));
+      }
+    } catch {
+      // fail silently
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      if (messages.length === 1 && messages[0].content === "Investigator, I am your Forensic AI Assistant. How can I guide you through the Forensic Pro Suite today?") {
+        localStorage.removeItem("forensic_chat_history");
+      } else {
+        const capped = messages.slice(-50);
+        localStorage.setItem("forensic_chat_history", JSON.stringify(capped));
+      }
+    } catch {
+      // fail silently
+    }
+  }, [messages, isLoaded]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,9 +93,29 @@ export default function RobotAssistant() {
                 <Bot className="w-5 h-5" />
                 <h4 className="font-bold text-sm uppercase tracking-widest">AI Assistant</h4>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition">
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    const welcome: Message[] = [
+                      { role: "model", content: "Investigator, I am your Forensic AI Assistant. How can I guide you through the Forensic Pro Suite today?" }
+                    ];
+                    setMessages(welcome);
+                    try {
+                      localStorage.removeItem("forensic_chat_history");
+                    } catch {
+                      // fail silently
+                    }
+                  }}
+                  aria-label="Clear chat history"
+                  title="Clear Chat"
+                  className="text-slate-400 hover:text-white transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Chat Area */}
