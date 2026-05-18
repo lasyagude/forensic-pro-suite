@@ -186,3 +186,9 @@ Password: password123
 4. 🗄️ **Examination:** Case records persisted to Supabase with investigator attribution.
 5. 🌍 **Analysis:** Threat nodes visualized on the geospatial map.
 6. 📄 **Reporting:** Per-case PDF chain-of-custody report generated client-side.
+
+###    Contributors
+
+<!-- CONTRIBUTORS_START -->
+<a href="https://github.com/Dipanita45"><img src="https://github.com/Dipanita45.png" width="50px" loading="lazy" title="Dipanita45" style="border-radius:50%;margin:5px;" alt="Dipanita45" /></a><a href="https://github.com/KGFCH2"><img src="https://github.com/KGFCH2.png" width="50px" loading="lazy" title="KGFCH2" style="border-radius:50%;margin:5px;" alt="KGFCH2" /></a><a href="https://github.com/Saranyadharani"><img src="https://github.com/Saranyadharani.png" width="50px" loading="lazy" title="Saranyadharani" style="border-radius:50%;margin:5px;" alt="Saranyadharani" /></a><a href="https://github.com/Tanvidotcom"><img src="https://github.com/Tanvidotcom.png" width="50px" loading="lazy" title="Tanvidotcom" style="border-radius:50%;margin:5px;" alt="Tanvidotcom" /></a><a href="https://github.com/Vidulaa03"><img src="https://github.com/Vidulaa03.png" width="50px" loading="lazy" title="Vidulaa03" style="border-radius:50%;margin:5px;" alt="Vidulaa03" /></a><a href="https://github.com/vaibhavi-vaishnav"><img src="https://github.com/vaibhavi-vaishnav.png" width="50px" loading="lazy" title="vaibhavi-vaishnav" style="border-radius:50%;margin:5px;" alt="vaibhavi-vaishnav" /></a>
+<!-- CONTRIBUTORS_END -->
