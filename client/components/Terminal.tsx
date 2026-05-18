@@ -9,6 +9,8 @@ import { useTheme } from "next-themes";
 function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const termInstance = useRef<Terminal | null>(null);
+  const commandHistory = useRef<string[]>([]);
+  const historyIndex = useRef<number>(-1);
 
   const handleCommand = (cmd: string, term: Terminal) => {
     const command = cmd.trim().toLowerCase();
@@ -154,12 +156,39 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
       if (domEvent.keyCode === 13) { // Enter
         term.write("\r\n");
         handleCommand(currentLine, term);
+        if (currentLine.trim()) {
+          commandHistory.current.push(currentLine.trim());
+          if (commandHistory.current.length > 50) {
+            commandHistory.current.shift();
+          }
+        }
+        historyIndex.current = -1;
         currentLine = "";
         term.write("$ ");
       } else if (domEvent.keyCode === 8) { // Backspace
         if (currentLine.length > 0) {
           currentLine = currentLine.slice(0, -1);
           term.write("\b \b");
+        }
+      } else if (domEvent.keyCode === 38) { // Arrow Up
+        if (commandHistory.current.length > 0) {
+          historyIndex.current = Math.min(historyIndex.current + 1, commandHistory.current.length - 1);
+          const recalled = commandHistory.current[commandHistory.current.length - 1 - historyIndex.current];
+          term.write("\b \b".repeat(currentLine.length));
+          currentLine = recalled;
+          term.write(recalled);
+        }
+      } else if (domEvent.keyCode === 40) { // Arrow Down
+        if (historyIndex.current > 0) {
+          historyIndex.current--;
+          const recalled = commandHistory.current[commandHistory.current.length - 1 - historyIndex.current];
+          term.write("\b \b".repeat(currentLine.length));
+          currentLine = recalled;
+          term.write(recalled);
+        } else if (historyIndex.current === 0) {
+          historyIndex.current = -1;
+          term.write("\b \b".repeat(currentLine.length));
+          currentLine = "";
         }
       } else if (printable && char.length === 1) {
         currentLine += char;
