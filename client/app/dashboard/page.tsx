@@ -2,6 +2,8 @@
 import { exportEvidenceBundle } from "@/lib/evidenceBundle";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import dynamic from "next/dynamic";
@@ -18,7 +20,8 @@ import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
-import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText } from "lucide-react";
+import { Search, Activity, Skull, Save, Folder, Zap, Download, AlertTriangle, FileText, GitBranch } from "lucide-react";
+
 
 interface CaseRecord {
   id: string;
@@ -85,6 +88,7 @@ const demoCaseRecords: CaseRecord[] = [
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [caseHistory, setCaseHistory] = useState<CaseRecord[]>([]);
@@ -172,11 +176,22 @@ export default function DashboardPage() {
       id: "tool-automated-flow",
       tasks: ["AI Artifact Triaging", "Pattern Recognition", "Cross-Case Correlation", "Automated Report Generation"]
     },
+    {
+      name: "Evidence Graph",
+      cat: "Provenance & Relationships",
+      icon: <GitBranch className="w-6 h-6 text-teal-400" />,
+      id: "tool-evidence-graph",
+      graphLink: true,
+      tasks: ["Entity Extraction", "Relationship Mapping", "Suspicious Pattern Detection", "Provenance Chain Visualization"],
+    },
   ];
 
-  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean; tasks?: string[] }) => {
+
+  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean; graphLink?: boolean; tasks?: string[] }) => {
     if (tool.special) {
       runAutomatedFlow();
+    } else if (tool.graphLink) {
+      router.push("/dashboard/graph");
     } else {
       setSelectedTool(tool);
     }
