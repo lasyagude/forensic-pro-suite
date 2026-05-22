@@ -1,8 +1,13 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from engine import ForensicEngine
-import asyncio
-import tempfile
+from security import (
+    inspect_archive_limits,
+    remove_file,
+    run_analysis_in_worker,
+    run_antivirus_scan,
+    stream_upload_to_tempfile,
+    validate_analyze_api_key,
+)
 import os
 import time
 import logging
@@ -18,6 +23,7 @@ allowed_origin = os.getenv("ALLOWED_ORIGIN", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[allowed_origin],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -65,46 +71,28 @@ async def get_case_stats():
 
 
 @app.post("/api/analyze")
-async def run_forensic_pipeline(file: UploadFile = File(...)):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No filename provided.")
-
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
-        )
-
-    tmp_path = None
+async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
     try:
-        sha256 = hashlib.sha256()
-        md5 = hashlib.md5()
-        total = 0
+        validate_analyze_api_key(request.headers.get("x-analyze-key"))
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
-            while True:
-                chunk = await file.read(65536)
-                if not chunk:
-                    break
-                total += len(chunk)
-                if total == 0:
-                    continue
-                if total > MAX_FILE_SIZE:
-                    raise HTTPException(status_code=413, detail="File exceeds the 500 MB size limit.")
-                await asyncio.to_thread(tmp.write, chunk)
-                sha256.update(chunk)
-                md5.update(chunk)
-            tmp_path = tmp.name
+        ext = os.path.splitext(file.filename or "")[1].lower()
+        if ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+            )
 
-        if total == 0:
-            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+        tmp_path = None
+        archive_metadata = None
 
-        pre_hashes = {"sha256": sha256.hexdigest(), "md5": md5.hexdigest()}
-        engine = ForensicEngine(tmp_path, precomputed_hashes=pre_hashes)
-        report = engine.run_automated_process()
-
-        await asyncio.sleep(2)
+        try:
+            tmp_path, _ = await stream_upload_to_tempfile(file, ext)
+            archive_metadata = inspect_archive_limits(tmp_path, file.filename or "")
+            antivirus_result = run_antivirus_scan(tmp_path)
+            report = run_analysis_in_worker(tmp_path)
+        finally:
+            if tmp_path:
+                remove_file(tmp_path)
 
         return {
             "id": f"CASE-{int(time.time())}",
@@ -116,11 +104,15 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
             "modified": report['metadata']['modified'],
             "accessed": report['metadata']['accessed'],
             "permissions": report['metadata']['permissions'],
+            "exif_metadata": report['metadata']['exif'],
             "magic_signature": report['metadata']['magic_signature'],
             "threat_level": report['threat_level'],
             "status": "COMPLETED",
             "report_generated": True,
-            "findings": f"Advanced Forensic Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5)."
+            "findings": f"Advanced Forensic Analysis: {report['metadata']['magic_signature']} detected. Integrity verified via Dual-Hash (SHA256+MD5).",
+            "antivirus_scan": antivirus_result,
+            "archive_inspection": archive_metadata,
+            "analysis_mode": "isolated-worker",
         }
     except HTTPException:
         raise
@@ -133,8 +125,3 @@ async def run_forensic_pipeline(file: UploadFile = File(...)):
                 os.unlink(tmp_path)
             except OSError as e:
                 logger.warning(f"Failed to cleanup temp file {tmp_path}: {str(e)}")
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
