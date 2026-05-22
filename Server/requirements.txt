@@ -5,3 +5,4 @@ supabase
 pytest
 pytest-asyncio
 httpx
+exif==1.6.1
