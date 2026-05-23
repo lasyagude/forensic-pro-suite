@@ -69,7 +69,7 @@ export default function RobotAssistant() {
 
       const data = await response.json();
       setMessages(prev => [...prev, { role: "model", content: data.response }]);
-    } catch {
+    } catch (error) {
       setMessages(prev => [...prev, { role: "model", content: "I encountered an error connecting to the intelligence network. Please try again." }]);
     } finally {
       setIsLoading(false);
@@ -153,12 +153,14 @@ export default function RobotAssistant() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Ask for guidance..."
+                  aria-label="Chat message input"
                   className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition shadow-sm"
                 />
                 <button
                   onClick={handleSend}
                   disabled={isLoading || !input.trim()}
                   className="bg-emerald-600 p-2 rounded-lg text-white hover:bg-emerald-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Send message"
                 >
                   <Send className="w-5 h-5" />
                 </button>
@@ -172,7 +174,9 @@ export default function RobotAssistant() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-8 w-12 h-12 sm:w-14 sm:h-14 bg-linear-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
+        aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
+        role="button"
+        className="fixed bottom-6 right-8 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
       >
         <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
       </motion.div>

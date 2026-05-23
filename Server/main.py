@@ -11,6 +11,7 @@ from security import (
 import os
 import time
 import logging
+import hashlib
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ ALLOWED_EXTENSIONS = {
 }
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
+
 
 @app.get("/api/stats")
 async def get_case_stats():
@@ -123,8 +125,3 @@ async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
                 os.unlink(tmp_path)
             except OSError as e:
                 logger.warning(f"Failed to cleanup temp file {tmp_path}: {str(e)}")
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
