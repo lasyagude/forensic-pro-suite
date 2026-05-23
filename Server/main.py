@@ -78,13 +78,27 @@ async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
     try:
         validate_analyze_api_key(request.headers.get("x-analyze-key"))
 
+        # Reject oversized uploads before reading the body.
+        # Content-Length is advisory but allows immediate rejection for honest
+        # clients and standard tools, avoiding unnecessary network I/O and memory
+        # pressure before stream_upload_to_tempfile enforces the hard byte limit.
+        raw_content_length = request.headers.get("content-length")
+        if raw_content_length is not None:
+            try:
+                if int(raw_content_length) > MAX_FILE_SIZE:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"File exceeds the maximum allowed size of {MAX_FILE_SIZE // (1024 * 1024)} MB."
+                    )
+            except ValueError:
+                logger.warning("Malformed Content-Length header received: %s", raw_content_length)
+
         ext = os.path.splitext(file.filename or "")[1].lower()
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(
                 status_code=400,
                 detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
             )
-
         try:
             tmp_path, _ = await stream_upload_to_tempfile(file, ext)
             archive_metadata = inspect_archive_limits(tmp_path, file.filename or "")
