@@ -205,6 +205,31 @@ export default function DashboardPage() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      // Clear any previous error
+      setFetchError(null);
+
+      // Pre-flight Client-Side Validation: File Size limit (500MB)
+      if (file.size > 500 * 1024 * 1024) {
+        setFetchError("File exceeds the 500 MB size limit.");
+        return;
+      }
+
+      // Pre-flight Client-Side Validation: File Extension
+      const allowedExtensions = [
+        ".dd", ".img", ".e01", ".ex01", ".l01", ".s01",
+        ".pcap", ".pcapng",
+        ".pdf", ".docx", ".xlsx", ".txt", ".csv", ".log",
+        ".jpg", ".jpeg", ".png", ".bmp", ".tiff",
+        ".zip", ".tar", ".gz"
+      ];
+      const fileExtension = file.name.includes(".") 
+        ? file.name.slice(file.name.lastIndexOf(".")).toLowerCase() 
+        : "";
+      if (!allowedExtensions.includes(fileExtension)) {
+        setFetchError(`File type '${fileExtension || "unknown"}' is not permitted.`);
+        return;
+      }
+
       setIsAnalyzing(true);
       const formData = new FormData();
       formData.append("file", file);
@@ -214,6 +239,12 @@ export default function DashboardPage() {
           method: "POST",
           body: formData,
         });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.detail || `Server returned ${response.status}`);
+        }
+
         const data: AnalysisResult = await response.json();
 
         const { error } = await supabase.from("cases").insert([
@@ -227,14 +258,24 @@ export default function DashboardPage() {
         ]);
 
         if (!error) setAnalysisResult(data);
-      } catch {
-        setAnalysisResult({
-          id: `DEMO-${Math.floor(Math.random() * 1000)}`,
-          filename: file.name,
-          hash: "SHA256: 7e8a...3f12",
-          size: "N/A",
-          status: "Offline Report",
-        });
+      } catch (error: any) {
+        // Fallback to offline DEMO report only on actual network failures (e.g. Failed to fetch)
+        if (
+          error instanceof TypeError || 
+          error.name === "TypeError" || 
+          error.message?.includes("Failed to fetch") || 
+          error.message?.includes("fetch")
+        ) {
+          setAnalysisResult({
+            id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+            filename: file.name,
+            hash: "SHA256: 7e8a...3f12",
+            size: "N/A",
+            status: "Offline Report",
+          });
+        } else {
+          setFetchError(error.message || "An unexpected error occurred during analysis.");
+        }
       } finally {
         setTimeout(() => setIsAnalyzing(false), 2000);
       }

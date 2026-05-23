@@ -13,12 +13,6 @@ export default function ThemeToggle() {
   useEffect(() => {
     setMounted(true);
   }, []);
-  const { theme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
 
   if (!mounted) return null;
 
@@ -35,7 +29,6 @@ export default function ThemeToggle() {
       aria-label={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
       role="switch"
       aria-checked={currentTheme === "dark"}
-      aria-label="Toggle Theme"
     >
       {currentTheme === "dark" ? (
         <Sun className="w-5 h-5 transition-all" />
