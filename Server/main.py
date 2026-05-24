@@ -12,6 +12,7 @@ from graph_engine import RelationshipEngine, DEMO_CASES
 import os
 import time
 import logging
+import hashlib
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ ALLOWED_EXTENSIONS = {
 }
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
+
 
 @app.get("/api/stats")
 async def get_case_stats():
@@ -71,6 +73,9 @@ async def get_case_stats():
 
 @app.post("/api/analyze")
 async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
+    tmp_path = None
+    archive_metadata = None
+
     try:
         validate_analyze_api_key(request.headers.get("x-analyze-key"))
 
@@ -80,9 +85,6 @@ async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
                 status_code=400,
                 detail=f"File type '{ext}' is not permitted. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
             )
-
-        tmp_path = None
-        archive_metadata = None
 
         try:
             tmp_path, _ = await stream_upload_to_tempfile(file, ext)

@@ -24,7 +24,7 @@ export default function ThemeToggle() {
       onClick={() =>
         setTheme(currentTheme === "dark" ? "light" : "dark")
       }
-      className="p-2.5 rounded-xl bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-emerald-500 transition-all"
+      className="p-2.5 rounded-xl bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-emerald-500 transition-all cursor-pointer"
       aria-label={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
       role="switch"
       aria-checked={currentTheme === "dark"}
