@@ -105,9 +105,11 @@ forensic-pro-suite/
 ## 🚀 Getting Started
 
 ### Prerequisites
-* Node.js 18+
-* Python 3.9+
-* A [Supabase](https://supabase.com) project
+* **Node.js**: v18.x or later (recommended v20 LTS)
+* **Python**: v3.10.x or later
+* **Git**: v2.30+
+* **Database**: A [Supabase](https://supabase.com) project for PostgreSQL backend
+* **Package Manager**: npm or yarn
 
 ### 1. Supabase Setup
 
