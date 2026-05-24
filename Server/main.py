@@ -5,6 +5,8 @@ import asyncio
 import tempfile
 import os
 import time
+import logging
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
