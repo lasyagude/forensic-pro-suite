@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, X, Loader2 } from "lucide-react";
+import { Bot, Send, X, Loader2, Trash2 } from "lucide-react";
 
 interface Message {
   role: "user" | "model";
@@ -13,9 +13,36 @@ export default function RobotAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     { role: "model", content: "Investigator, I am your Forensic AI Assistant. How can I guide you through the Forensic Pro Suite today?" }
   ]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("forensic_chat_history");
+      if (saved) {
+        setMessages(JSON.parse(saved));
+      }
+    } catch {
+      // fail silently
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      if (messages.length === 1 && messages[0].content === "Investigator, I am your Forensic AI Assistant. How can I guide you through the Forensic Pro Suite today?") {
+        localStorage.removeItem("forensic_chat_history");
+      } else {
+        const capped = messages.slice(-50);
+        localStorage.setItem("forensic_chat_history", JSON.stringify(capped));
+      }
+    } catch {
+      // fail silently
+    }
+  }, [messages, isLoaded]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,9 +93,29 @@ export default function RobotAssistant() {
                 <Bot className="w-5 h-5" />
                 <h4 className="font-bold text-sm uppercase tracking-widest">AI Assistant</h4>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition">
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    const welcome: Message[] = [
+                      { role: "model", content: "Investigator, I am your Forensic AI Assistant. How can I guide you through the Forensic Pro Suite today?" }
+                    ];
+                    setMessages(welcome);
+                    try {
+                      localStorage.removeItem("forensic_chat_history");
+                    } catch {
+                      // fail silently
+                    }
+                  }}
+                  aria-label="Clear chat history"
+                  title="Clear Chat"
+                  className="text-slate-400 hover:text-white transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Chat Area */}
@@ -106,12 +153,14 @@ export default function RobotAssistant() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Ask for guidance..."
+                  aria-label="Chat message input"
                   className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition shadow-sm"
                 />
                 <button
                   onClick={handleSend}
                   disabled={isLoading || !input.trim()}
                   className="bg-emerald-600 p-2 rounded-lg text-white hover:bg-emerald-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Send message"
                 >
                   <Send className="w-5 h-5" />
                 </button>
@@ -125,6 +174,8 @@ export default function RobotAssistant() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
+        role="button"
         className="fixed bottom-6 right-8 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] cursor-pointer z-50"
       >
         <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
