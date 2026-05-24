@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +23,7 @@ export default function LoginPage() {
     if (result?.ok) {
       router.push("/dashboard"); 
     } else {
-      alert("Invalid Credentials. Use admin@forensics.com / password123");
+      setErrorMsg("Invalid Credentials. Use admin@forensics.com / password123");
     }
   };
 
@@ -77,6 +78,11 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+          {errorMsg && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs p-3 rounded-xl font-mono text-center">
+              {errorMsg}
+            </div>
+          )}
           <button 
             type="submit"
             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/20 uppercase text-xs tracking-widest mt-4 active:scale-[0.98]"
