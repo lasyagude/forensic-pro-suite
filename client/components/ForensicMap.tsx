@@ -2,7 +2,6 @@
 
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
@@ -23,12 +22,6 @@ const severityColor: Record<string, string> = {
 
 export default function ForensicMap() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const isDark = theme === "dark";
   const mapFill = isDark ? "#1e293b" : "#e2e8f0";
   const mapStroke = isDark ? "#334155" : "#cbd5e1";
@@ -64,12 +57,12 @@ export default function ForensicMap() {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill={mounted ? mapFill : "#1e293b"}
-                    stroke={mounted ? mapStroke : "#334155"}
+                    fill={mapFill}
+                    stroke={mapStroke}
                     strokeWidth={0.5}
                     style={{ 
                       default: { outline: 'none' }, 
-                      hover: { outline: 'none', fill: mounted ? mapHover : "#334155" }, 
+                      hover: { outline: 'none', fill: mapHover }, 
                       pressed: { outline: 'none' } 
                     }}
                   />
@@ -84,7 +77,7 @@ export default function ForensicMap() {
                 <text
                   textAnchor="middle"
                   y={-12}
-                  style={{ fontFamily: 'monospace', fontSize: '8px', fill: mounted ? labelFill : "#94a3b8" }}
+                  style={{ fontFamily: 'monospace', fontSize: '8px', fill: labelFill }}
                 >
                   {actor.name}
                 </text>
