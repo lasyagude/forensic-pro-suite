@@ -43,3 +43,6 @@ As this is a forensic tool, please adhere to the following security guidelines:
 
 ---
 *Thank you for helping keep the Forensic Pro Suite secure!* 🛡️
+# Security Policy
+
+Please report vulnerabilities to the maintainers privately.
