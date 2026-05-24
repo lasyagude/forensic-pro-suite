@@ -15,6 +15,7 @@ app.add_middleware(
     allow_origins=[allowed_origin],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 # Forensic evidence file types — executables and scripts are explicitly excluded
