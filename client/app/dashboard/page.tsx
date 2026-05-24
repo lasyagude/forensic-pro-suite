@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import dynamic from "next/dynamic";
 import RobotAssistant from "@/components/RobotAssistant";
-
+import BackToTop from "@/components/BackToTop";
 const ForensicTerminal = dynamic(() => import("@/components/Terminal"), { ssr: false });
 const ForensicMap = dynamic(() => import("@/components/ForensicMap"), { ssr: false });
 const ThreatIntelligenceFeed = dynamic(() => import("@/components/ThreatIntelligenceFeed"), { ssr: false });
@@ -33,6 +33,17 @@ import {
   Sparkles,
   LayoutDashboard,
   Database,
+  Cpu,
+  AlertCircle,
+  ShieldCheck,
+  ShieldAlert,
+  Info,
+  Copy,
+  HardDrive,
+  FileJson,
+  FileSignature,
+  Clock,
+  Edit2,
 } from "lucide-react";
 
 interface CaseRecord {
@@ -1411,6 +1422,7 @@ export default function DashboardPage() {
         tool={selectedTool} 
         onClose={() => setSelectedTool(null)} 
       />
+     <BackToTop />
     </div>
   );
 }
