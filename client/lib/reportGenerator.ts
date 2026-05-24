@@ -1,4 +1,4 @@
-import jsPDF from 'jspdf';
+import jsPDF, { GState } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export interface ForensicReportData {
@@ -15,7 +15,7 @@ export interface ForensicReportData {
 }
 
 function sanitize(value: string): string {
-  return value ? value.replace(/[<>&"'/\\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
+  return value ? value.replace(/[<>&"'/\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
 }
 
 export const generateForensicReport = async (data: ForensicReportData) => {
@@ -74,7 +74,7 @@ export const generateForensicReport = async (data: ForensicReportData) => {
   // Watermark
   const addWatermark = (pdf: jsPDF) => {
     pdf.saveGraphicsState();
-    pdf.setGState(new (pdf as unknown as { GState: new (opts: { opacity: number }) => unknown }).GState({ opacity: 0.05 }) as import('jspdf').GState);
+    pdf.setGState(new GState({ opacity: 0.05 }));
     pdf.setFontSize(60);
     pdf.setTextColor(150);
     pdf.setFont('helvetica', 'bold');
