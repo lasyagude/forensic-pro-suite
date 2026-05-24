@@ -2,4 +2,4 @@
 Provide a brief description of the changes.
 
 ## Related Issues
-Closes #
+Closes #<Issue_Number>
