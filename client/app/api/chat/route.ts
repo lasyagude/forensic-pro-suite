@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
         const responseText = result.response.text();
 
         return NextResponse.json({ response: responseText, provider: "gemini" });
-      } catch (geminiError: any) {
-        console.warn("Gemini API failed, falling back to Groq if available:", geminiError?.message || geminiError);
+      } catch (geminiError: unknown) {
+        console.warn("Gemini API failed, falling back to Groq if available:", geminiError instanceof Error ? geminiError.message : geminiError);
         // Fallback to Groq if available
         if (!groqKey) {
           throw geminiError;
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     if (groqKey) {
       const groqMessages = [
         { role: "system", content: systemPrompt },
-        ...messages.map((msg: any) => ({
+        ...messages.map((msg: { role: string; content: string }) => ({
           role: msg.role === "model" ? "assistant" : msg.role,
           content: msg.content
         }))
