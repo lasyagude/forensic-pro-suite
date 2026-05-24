@@ -15,7 +15,7 @@ export interface ForensicReportData {
 }
 
 function sanitize(value: string): string {
-  return value ? value.replace(/[<>&"'/\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
+  return value ? value.replace(/[<>&"'\/\\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
 }
 
 export const generateForensicReport = async (data: ForensicReportData) => {

@@ -36,6 +36,17 @@ import {
   Brain,
   Loader,
   Sparkles,
+  Cpu,
+  FileJson,
+  AlertCircle,
+  ShieldCheck,
+  Info,
+  Copy,
+  ShieldAlert,
+  HardDrive,
+  FileSignature,
+  Clock,
+  Edit2,
 } from "lucide-react";
 
 interface CaseRecord {
