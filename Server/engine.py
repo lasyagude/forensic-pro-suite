@@ -65,4 +65,4 @@ class ForensicEngine:
             "modified": datetime.datetime.fromtimestamp(stats.st_mtime, tz=datetime.timezone.utc).isoformat(),
             "accessed": datetime.datetime.fromtimestamp(stats.st_atime, tz=datetime.timezone.utc).isoformat(),
             "permissions": oct(stats.st_mode)[-3:]
-        }
+        }
