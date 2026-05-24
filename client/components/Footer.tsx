@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
-import { Shield, FileText, Scale, BookOpen, Github, Mail, Linkedin, Instagram } from "lucide-react";
+import { Shield, FileText, Scale, BookOpen, Github, Mail, Linkedin, Instagram, Wrench } from "lucide-react";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 px-6 transition-colors duration-300">
+    <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 px-6 transition-colors duration-300" role="contentinfo">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start text-left gap-12">
           {/* Brand & Repo */}
@@ -16,9 +18,9 @@ export default function Footer() {
             <p className="text-slate-500 text-xs max-w-xs leading-relaxed">
               Professional-grade digital forensics workstation with integrated AI guidance and real-time artifact verification.
             </p>
-            <a 
-              href="https://github.com/Akshay473/forensic-pro-suite" 
-              target="_blank" 
+            <a
+              href="https://github.com/Akshay473/forensic-pro-suite"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-slate-400 hover:text-emerald-500 transition-colors text-xs font-mono"
             >
@@ -28,10 +30,10 @@ export default function Footer() {
           </div>
 
           {/* Links Grid */}
-          <div className="grid grid-cols-2 gap-8 sm:gap-24 w-fit mx-auto lg:mx-0 lg:w-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-16 w-fit mx-auto lg:mx-0 lg:w-auto">
             <div className="space-y-4">
               <h4 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Platform</h4>
-              <nav className="flex flex-col items-start gap-3">
+              <nav className="flex flex-col items-start gap-3" aria-label="Platform links">
                 <Link href="/privacy" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
                   <Scale className="w-3.5 h-3.5" /> Privacy
                 </Link>
@@ -43,10 +45,27 @@ export default function Footer() {
                 </Link>
               </nav>
             </div>
-            
+
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Resources</h4>
+              <nav className="flex flex-col items-start gap-3" aria-label="Resource links">
+                <Link href="/tools" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
+                  <Wrench className="w-3.5 h-3.5" /> Tools
+                </Link>
+                <a
+                  href="https://github.com/Akshay473/forensic-pro-suite/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2"
+                >
+                  <Github className="w-3.5 h-3.5" /> Issues
+                </a>
+              </nav>
+            </div>
+
             <div className="space-y-4">
               <h4 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Connect</h4>
-              <div className="flex flex-col items-start gap-3">
+              <div className="flex flex-col items-start gap-3" aria-label="Social links">
                 <a href="mailto:akshayshibu473@gmail.com" className="text-slate-500 hover:text-emerald-500 transition-colors text-[11px] font-mono uppercase tracking-widest flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5" /> Email
                 </a>
@@ -63,7 +82,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-slate-100 dark:border-slate-900 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] text-center md:text-left">
-            © 2026 Forensic Pro Suite • All Rights Reserved
+            &copy; {currentYear} Forensic Pro Suite &bull; All Rights Reserved
           </p>
           <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest bg-slate-50 dark:bg-slate-900/50 px-4 py-1.5 rounded-full border border-slate-200 dark:border-slate-800">
             Version 1.0.4-LTS_STABLE
