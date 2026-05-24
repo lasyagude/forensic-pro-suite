@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-background: #ffffff;
+  --color-background: #f8fafc;
   --color-foreground: #0f172a;
 
   --dark-color-background: #020617;
@@ -24,6 +24,41 @@ body {
   background-color: inherit;
   color: inherit;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html:not(.dark) .bg-slate-50,
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-50\/50,
+html:not(.dark) .bg-slate-900\/50,
+html:not(.dark) .bg-white,
+html:not(.dark) .bg-slate-950\/50,
+html:not(.dark) .bg-\[\#0b1329\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) .text-slate-900,
+html:not(.dark) .text-white,
+html:not(.dark) .text-slate-100,
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) span.font-bold {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-400,
+html:not(.dark) .text-slate-500,
+html:not(.dark) .text-gray-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) .border-slate-200,
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border {
+  border-color: #e2e8f0 !important;
 }
 
 /* Custom Scrollbar */

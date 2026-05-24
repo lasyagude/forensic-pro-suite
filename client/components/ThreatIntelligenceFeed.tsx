@@ -37,7 +37,7 @@ export default function ThreatIntelligenceFeed() {
         </h3>
         <span className="text-[8px] text-slate-500">SECURE_CHANNEL_v4.2</span>
       </div>
-      <div className="space-y-2 min-h-[160px]">
+      <div className="space-y-2 min-h-40">
         <AnimatePresence initial={false}>
           {logs.map((log, i) => (
             <motion.p
