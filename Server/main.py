@@ -29,6 +29,7 @@ ALLOWED_EXTENSIONS = {
 
 MAX_FILE_SIZE = 500 * 1024 * 1024  # 500 MB
 
+# Dashboard statistics endpoint
 @app.get("/api/stats")
 async def get_case_stats():
     try:
