@@ -21,6 +21,7 @@ export default function ThemeToggle() {
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="p-2.5 rounded-xl bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-emerald-500 transition-all"
       aria-label="Toggle Theme"
+      title="Toggle Theme"
     >
       {theme === "dark" ? (
         <Sun className="w-5 h-5 transition-all" />
