@@ -6,6 +6,7 @@ Your help makes this project better for everyone.
 
 ### 🐛 Reporting Bugs
 - Check the [issues](../../issues) to see if the bug has already been reported.  
+- Please use the provided **Issue Templates** when opening a new issue to ensure we have all the required information.
 - Open a new issue with:  
   - A clear description of the bug  
   - Steps to reproduce  
