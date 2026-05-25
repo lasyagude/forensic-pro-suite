@@ -94,12 +94,18 @@ export default function DashboardPage() {
   const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+
+
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
   const exportMode = hasLiveRecords ? "case" : "demo";
   const canExport = csvRecords.length > 0;
   const csvButtonLabel = isExporting ? "Exporting..." : hasLiveRecords ? "Export CSV" : "Export Demo CSV";
   const exportButtonDisabled = !canExport || isExporting;
+
+
+
+
 
   useEffect(() => {
     if (!exportStatus) return;
@@ -264,6 +270,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 sm:p-6 lg:p-6 font-sans transition-colors duration-300">
+
       <header className="flex flex-col md:flex-row justify-between items-center md:items-start mb-10 border-b border-slate-200 dark:border-slate-800 pb-8 gap-8 text-center md:text-left">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -278,7 +285,7 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center items-center gap-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
           <ThemeToggle />
           <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 md:p-3 rounded-xl text-center min-w-20">
             <p className="text-[8px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-widest mb-1">Archive</p>
