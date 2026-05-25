@@ -2,9 +2,9 @@
 
 A high-fidelity Digital Forensics Workstation enhanced for automated artifact extraction, geospatial threat triage, and redundant chain-of-custody documentation.
 
-| Resource           | Link                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------ |
-| **Live Workstation** | [https://forensic-pro-suite-new.vercel.app/](https://forensic-pro-suite-new.vercel.app/) |
+| Resource             | Link                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------ |
+| **Live Workstation** | [https://forensic-pro-suite-new.vercel.app/](https://forensic-pro-suite-new.vercel.app/)         |
 
 ## Advanced Forensic Enhancements (The "Strong" Version)
 
@@ -63,15 +63,15 @@ The embedded terminal (`investigator_cli_v1`) allows you to simulate high-level 
 | Layer      | Technology                                            |
 | ---------- | ----------------------------------------------------- |
 | Frontend   | Next.js 16, React 19, TypeScript, Tailwind CSS v4     |
-| Auth       | NextAuth.js v4 (Credentials Provider)           |
-| Animations | Framer Motion                                   |
-| Maps       | React-Simple-Maps, D3-Geo, TopoJSON             |
-| Charts     | Recharts                                        |
-| Terminal   | Xterm.js + xterm-addon-fit                      |
-| PDF        | jsPDF, jspdf-autotable                          |
-| Backend    | FastAPI (Python), Uvicorn, python-multipart     |
-| Database   | Supabase (PostgreSQL + RLS)                     |
-| Icons      | Lucide React                                    |
+| Auth       | NextAuth.js v4 (Credentials Provider)                 |
+| Animations | Framer Motion                                         |
+| Maps       | React-Simple-Maps, D3-Geo, TopoJSON                   |
+| Charts     | Recharts                                              |
+| Terminal   | Xterm.js + xterm-addon-fit                            |
+| PDF        | jsPDF, jspdf-autotable                                |
+| Backend    | FastAPI (Python), Uvicorn, python-multipart           |
+| Database   | Supabase (PostgreSQL + RLS)                           |
+| Icons      | Lucide React                                          |
 
 ## Project Structure
 
