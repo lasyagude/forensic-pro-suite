@@ -2,6 +2,8 @@
 import { exportEvidenceBundle } from "@/lib/evidenceBundle";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import dynamic from "next/dynamic";
@@ -28,11 +30,23 @@ import {
   Download,
   AlertTriangle,
   FileText,
+  GitBranch,
+  LayoutDashboard,
+  Database,
   Brain,
   Loader,
   Sparkles,
-  LayoutDashboard,
-  Database,
+  Cpu,
+  FileJson,
+  AlertCircle,
+  ShieldCheck,
+  Info,
+  Copy,
+  ShieldAlert,
+  HardDrive,
+  FileSignature,
+  Clock,
+  Edit2,
 } from "lucide-react";
 
 interface CaseRecord {
@@ -279,6 +293,7 @@ const demoCaseRecords: CaseRecord[] = [
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [caseHistory, setCaseHistory] = useState<CaseRecord[]>([]);
@@ -570,13 +585,32 @@ export default function DashboardPage() {
       id: "tool-automated-flow",
       tasks: ["AI Artifact Triaging", "Pattern Recognition", "Cross-Case Correlation", "Automated Report Generation"]
     },
+    {
+      name: "Evidence Graph",
+      cat: "Provenance & Relationships",
+      icon: <GitBranch className="w-6 h-6 text-teal-400" />,
+      id: "tool-evidence-graph",
+      graphLink: true,
+      tasks: ["Entity Extraction", "Relationship Mapping", "Suspicious Pattern Detection", "Provenance Chain Visualization"],
+    },
   ];
 
-  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean; link?: string; tasks?: string[] }) => {
+  const handleToolClick = (tool: {
+    name: string;
+    cat: string;
+    icon: React.ReactNode;
+    id: string;
+    special?: boolean;
+    link?: string;
+    graphLink?: boolean;
+    tasks?: string[];
+  }) => {
     if (tool.link) {
       window.location.href = tool.link;
     } else if (tool.special && tool.id === "tool-automated-flow") {
       runAutomatedFlow();
+    } else if (tool.graphLink) {
+      router.push("/dashboard/graph");
     } else {
       setSelectedTool(tool);
     }
