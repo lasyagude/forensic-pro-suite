@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from security import (
     inspect_archive_limits,
@@ -47,30 +47,36 @@ async def get_case_stats():
         url = os.getenv("SUPABASE_URL")
         key = os.getenv("SUPABASE_ANON_KEY")
 
-        if not url or not key:
-            raise HTTPException(status_code=500, detail="Supabase credentials not configured.")
+def get_api_user(authorization: str | None = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    token = parts[1]
 
-        client = create_client(url, key)
-        response = client.table("cases").select("status").execute()
-        cases = response.data
+    admin_token = os.getenv("ADMIN_TOKEN")
+    investigator_token = os.getenv("INVESTIGATOR_TOKEN")
 
-        total = len(cases)
-        pending = sum(1 for c in cases if (c.get("status") or "").lower() == "pending")
-        verified = sum(1 for c in cases if (c.get("status") or "").lower() == "verified")
+    if admin_token and token == admin_token:
+        return {"id": "admin", "role": "admin", "token": token}
+    if investigator_token and token == investigator_token:
+        return {"id": "investigator", "role": "investigator", "token": token}
 
-        return {
-            "total": total,
-            "pending": pending,
-            "verified": verified,
-            "reports_generated": verified
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Stats endpoint error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error while fetching stats.")
+    raise HTTPException(status_code=403, detail="Forbidden")
 
 
+def write_audit(entry: str):
+    try:
+        with open("server_audit.log", "a") as f:
+            f.write(entry + "\n")
+    except Exception:
+        logger.warning("Failed to write audit log")
+
+
+@app.get("/api/stats")
+async def get_case_stats(current_user: dict = Depends(get_api_user)):
+    ...
 @app.post("/api/analyze")
 async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
     tmp_path = None
