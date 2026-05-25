@@ -10,6 +10,21 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    const file = formData.get("file");
+
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "Missing file upload" }, { status: 400 });
+    }
+
+    const forwardForm = new FormData();
+    forwardForm.append("file", file, file.name);
+
     // 1. Session Guard Check - Deny unauthenticated external requests immediately
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -43,6 +58,19 @@ export async function POST(request: NextRequest) {
       body: forwardForm,
     });
 
+    const contentType = backendResponse.headers.get("content-type") || "application/json";
+    const payload = await backendResponse.text();
+
+    return new NextResponse(payload, {
+      status: backendResponse.status,
+      headers: {
+        "content-type": contentType,
+      },
+    });
+  } catch (error) {
+    console.error("Analyze proxy request failed:", error);
+    return NextResponse.json(
+      { error: "Unable to reach the forensic backend service." },
     // 5. Extract and parse data safely without dropping file stream contexts
     const contentType = backendResponse.headers.get("content-type") || "application/json";
     const rawPayload = await backendResponse.text();
