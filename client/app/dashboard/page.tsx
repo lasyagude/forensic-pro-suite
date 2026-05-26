@@ -314,12 +314,18 @@ export default function DashboardPage() {
   const [caseSummaries, setCaseSummaries] = useState<Record<string, string>>({});
   const [summarizingCaseId, setSummarizingCaseId] = useState<string | null>(null);
 
+
+
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
   const exportMode = hasLiveRecords ? "case" : "demo";
   const canExport = csvRecords.length > 0;
   const csvButtonLabel = isExporting ? "Exporting..." : hasLiveRecords ? "Export CSV" : "Export Demo CSV";
   const exportButtonDisabled = !canExport || isExporting;
+
+
+
+
 
   useEffect(() => {
     if (!exportStatus) return;
