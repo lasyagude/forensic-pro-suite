@@ -296,6 +296,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [caseHistory, setCaseHistory] = useState<CaseRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -623,10 +624,28 @@ export default function DashboardPage() {
     }
   };
 
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const { data, error } = await supabase
+        .from("cases")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setFetchError("Failed to load case records. Check your Supabase connection.");
+      } else {
+        setFetchError(null);
+        setCaseHistory(data as CaseRecord[]);
+      }
+    };
+    fetchHistory();
+  }, [analysisResult]);
+
+  const runAutomatedFlow = () => {
   const runAutomatedFlow = async () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.onchange = async (e: Event) => {
+    input.onchange = (e: Event) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
@@ -656,9 +675,48 @@ export default function DashboardPage() {
       }
 
       setIsAnalyzing(true);
+      setUploadProgress(0);
+
       const formData = new FormData();
       formData.append("file", file);
 
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const pct = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(Math.min(pct, 95));
+        }
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data: AnalysisResult = JSON.parse(xhr.responseText);
+            setUploadProgress(100);
+            const { error } = await supabase.from("cases").insert([
+              {
+                case_id: data.id,
+                filename: file.name,
+                hash_value: data.hash,
+                investigator: session?.user?.email || "Unknown Agent",
+                status: "Verified",
+              },
+            ]);
+            if (!error) setAnalysisResult(data);
+          } catch {
+            setAnalysisResult({
+              id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+              filename: file.name,
+              hash: "SHA256: 7e8a...3f12",
+              size: "N/A",
+              status: "Offline Report",
+            });
+          }
+        } else {
+          setAnalysisResult({
+            id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+            filename: file.name,
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/analyze`, {
           method: "POST",
@@ -704,6 +762,23 @@ export default function DashboardPage() {
             size: "N/A",
             status: "Offline Report",
           });
+        }
+        setTimeout(() => { setIsAnalyzing(false); setUploadProgress(0); }, 2000);
+      };
+
+      xhr.onerror = () => {
+        setAnalysisResult({
+          id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+          filename: file.name,
+          hash: "SHA256: 7e8a...3f12",
+          size: "N/A",
+          status: "Offline Report",
+        });
+        setTimeout(() => { setIsAnalyzing(false); setUploadProgress(0); }, 2000);
+      };
+
+      xhr.open("POST", `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/analyze`);
+      xhr.send(formData);
         } else {
           setFetchError(error.message || "An unexpected error occurred during analysis.");
         }
@@ -861,8 +936,14 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                       <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest font-mono">
-                        Analyzing Artifacts...
+                        {uploadProgress < 100 ? "Uploading..." : "Analyzing Artifacts..."}
                       </span>
+                    </div>
+                    <div className="mb-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
                     </div>
                     <AnalysisLogs />
                   </motion.div>
