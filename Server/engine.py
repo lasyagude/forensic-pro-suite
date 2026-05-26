@@ -1,3 +1,4 @@
+"""Core Forensic Engine Module for Evidence Processing."""
 import hashlib
 import os
 import datetime

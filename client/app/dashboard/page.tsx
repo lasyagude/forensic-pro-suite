@@ -2,6 +2,8 @@
 import { exportEvidenceBundle } from "@/lib/evidenceBundle";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import dynamic from "next/dynamic";
@@ -18,6 +20,7 @@ import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
+import BackToTop from "@/components/BackToTop";
 import {
   Search,
   Activity,
@@ -28,11 +31,23 @@ import {
   Download,
   AlertTriangle,
   FileText,
+  GitBranch,
+  LayoutDashboard,
+  Database,
   Brain,
   Loader,
   Sparkles,
-  LayoutDashboard,
-  Database,
+  Cpu,
+  FileJson,
+  AlertCircle,
+  ShieldCheck,
+  Info,
+  Copy,
+  ShieldAlert,
+  HardDrive,
+  FileSignature,
+  Clock,
+  Edit2,
 } from "lucide-react";
 
 interface CaseRecord {
@@ -279,6 +294,7 @@ const demoCaseRecords: CaseRecord[] = [
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [caseHistory, setCaseHistory] = useState<CaseRecord[]>([]);
@@ -286,10 +302,6 @@ export default function DashboardPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [summarizingCaseId, setSummarizingCaseId] = useState<string | null>(null);
-  const [caseSummaries, setCaseSummaries] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
 
   // Workstation states
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
@@ -297,6 +309,12 @@ export default function DashboardPage() {
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [activeTab, setActiveTab] = useState<"metadata" | "ai" | "logs">("metadata");
   const [liveAnalysisResults, setLiveAnalysisResults] = useState<Record<string, any>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [caseSummaries, setCaseSummaries] = useState<Record<string, string>>({});
+  const [summarizingCaseId, setSummarizingCaseId] = useState<string | null>(null);
+
+
 
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
@@ -304,6 +322,10 @@ export default function DashboardPage() {
   const canExport = csvRecords.length > 0;
   const csvButtonLabel = isExporting ? "Exporting..." : hasLiveRecords ? "Export CSV" : "Export Demo CSV";
   const exportButtonDisabled = !canExport || isExporting;
+
+
+
+
 
   useEffect(() => {
     if (!exportStatus) return;
@@ -570,13 +592,32 @@ export default function DashboardPage() {
       id: "tool-automated-flow",
       tasks: ["AI Artifact Triaging", "Pattern Recognition", "Cross-Case Correlation", "Automated Report Generation"]
     },
+    {
+      name: "Evidence Graph",
+      cat: "Provenance & Relationships",
+      icon: <GitBranch className="w-6 h-6 text-teal-400" />,
+      id: "tool-evidence-graph",
+      graphLink: true,
+      tasks: ["Entity Extraction", "Relationship Mapping", "Suspicious Pattern Detection", "Provenance Chain Visualization"],
+    },
   ];
 
-  const handleToolClick = (tool: { name: string; cat: string; icon: React.ReactNode; id: string; special?: boolean; link?: string; tasks?: string[] }) => {
+  const handleToolClick = (tool: {
+    name: string;
+    cat: string;
+    icon: React.ReactNode;
+    id: string;
+    special?: boolean;
+    link?: string;
+    graphLink?: boolean;
+    tasks?: string[];
+  }) => {
     if (tool.link) {
       window.location.href = tool.link;
     } else if (tool.special && tool.id === "tool-automated-flow") {
       runAutomatedFlow();
+    } else if (tool.graphLink) {
+      router.push("/dashboard/graph");
     } else {
       setSelectedTool(tool);
     }
@@ -589,6 +630,31 @@ export default function DashboardPage() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      // Clear any previous error
+      setFetchError(null);
+
+      // Pre-flight Client-Side Validation: File Size limit (500MB)
+      if (file.size > 500 * 1024 * 1024) {
+        setFetchError("File exceeds the 500 MB size limit.");
+        return;
+      }
+
+      // Pre-flight Client-Side Validation: File Extension
+      const allowedExtensions = [
+        ".dd", ".img", ".e01", ".ex01", ".l01", ".s01",
+        ".pcap", ".pcapng",
+        ".pdf", ".docx", ".xlsx", ".txt", ".csv", ".log",
+        ".jpg", ".jpeg", ".png", ".bmp", ".tiff",
+        ".zip", ".tar", ".gz"
+      ];
+      const fileExtension = file.name.includes(".") 
+        ? file.name.slice(file.name.lastIndexOf(".")).toLowerCase() 
+        : "";
+      if (!allowedExtensions.includes(fileExtension)) {
+        setFetchError(`File type '${fileExtension || "unknown"}' is not permitted.`);
+        return;
+      }
+
       setIsAnalyzing(true);
       const formData = new FormData();
       formData.append("file", file);
@@ -598,6 +664,12 @@ export default function DashboardPage() {
           method: "POST",
           body: formData,
         });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.detail || `Server returned ${response.status}`);
+        }
+
         const data: AnalysisResult = await response.json();
 
         // Save live response
@@ -616,6 +688,25 @@ export default function DashboardPage() {
           },
         ]);
 
+        if (!error) setAnalysisResult(data);
+      } catch (error: any) {
+        // Fallback to offline DEMO report only on actual network failures (e.g. Failed to fetch)
+        if (
+          error instanceof TypeError || 
+          error.name === "TypeError" || 
+          error.message?.includes("Failed to fetch") || 
+          error.message?.includes("fetch")
+        ) {
+          setAnalysisResult({
+            id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+            filename: file.name,
+            hash: "SHA256: 7e8a...3f12",
+            size: "N/A",
+            status: "Offline Report",
+          });
+        } else {
+          setFetchError(error.message || "An unexpected error occurred during analysis.");
+        }
         if (!error) {
           setAnalysisResult(data);
           setSelectedCaseId(data.id);
@@ -669,6 +760,7 @@ export default function DashboardPage() {
           item.status.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : allCases;
+
 
   const stats = {
     total: allCases.length,
@@ -1373,7 +1465,7 @@ export default function DashboardPage() {
                             {summarizingCaseId === item.case_id ? (
                               <Loader className="w-3.5 h-3.5 animate-spin" />
                             ) : (
-                              <Brain className="w-3.5.5 h-3" />
+                              <Brain className="w-3.5 h-3" />
                             )}
                             <span className="hidden md:inline">AI Summary</span>
                           </button>
@@ -1390,7 +1482,7 @@ export default function DashboardPage() {
                   >
                     No cases found matching &quot;{searchQuery}&quot;
                   </motion.div>
-                )}
+                ))}
               </AnimatePresence>
             </div>
           </motion.section>
@@ -1407,6 +1499,7 @@ export default function DashboardPage() {
         </div>
       </div>
       <Footer />
+      <BackToTop />
       <ToolModal 
         tool={selectedTool} 
         onClose={() => setSelectedTool(null)} 
