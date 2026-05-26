@@ -1,17 +1,17 @@
+"""Core Forensic Engine Module for Evidence Processing."""
 import hashlib
 import os
 import datetime
 
 class ForensicEngine:
-    def __init__(self, evidence_path, precomputed_hashes=None):
+    def __init__(self, evidence_path):
         self.evidence_path = evidence_path
         self.report_data = {}
-        self.precomputed_hashes = precomputed_hashes or {}
 
     def run_automated_process(self):
         print("Starting Identification...")
-        sha256 = self.precomputed_hashes.get("sha256") or self.generate_hash("sha256")
-        md5 = self.precomputed_hashes.get("md5") or self.generate_hash("md5")
+        sha256 = self.generate_hash("sha256")
+        md5 = self.generate_hash("md5")
 
         print("Verifying Magic Numbers...")
         magic_verified, file_sig = self.verify_file_signature()
@@ -20,9 +20,6 @@ class ForensicEngine:
         metadata = self.get_metadata()
         metadata["magic_signature"] = file_sig
         metadata["signature_match"] = magic_verified
-
-        print("Extracting Image EXIF Data (if applicable)...")
-        metadata["exif"] = self.extract_image_exif(file_sig)
 
         self.report_data = {
             "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -43,15 +40,13 @@ class ForensicEngine:
         return h.hexdigest()
 
     def verify_file_signature(self):
+        # Basic magic number map
         signatures = {
             b"\x89PNG\r\n\x1a\n": "PNG Image",
             b"\xff\xd8\xff": "JPEG Image",
             b"%PDF": "PDF Document",
             b"PK\x03\x04": "ZIP/Office Archive",
             b"MZ": "Executable (Warning)",
-            b"\xd4\xc3\xb2\xa1": "PCAP Network Capture (Little Endian)",
-            b"\xa1\xb2\xc3\xd4": "PCAP Network Capture (Big Endian)",
-            b"\x0a\x0d\x0d\x0a": "PCAPNG Network Capture",
         }
         try:
             with open(self.evidence_path, "rb") as f:
@@ -72,19 +67,3 @@ class ForensicEngine:
             "accessed": datetime.datetime.fromtimestamp(stats.st_atime, tz=datetime.timezone.utc).isoformat(),
             "permissions": oct(stats.st_mode)[-3:]
         }
-
-    def extract_image_exif(self, file_sig: str) -> dict:
-        supported_formats = ["PNG Image", "JPEG Image"]
-
-        if file_sig not in supported_formats:
-            return {"status": "skipped", "message": "File signature is not a supported image format"}
-
-        from utils import extract_exif_data
-        try:
-            with open(self.evidence_path, "rb") as file_handler:
-                image_binary_payload = file_handler.read()
-
-            return extract_exif_data(image_binary_payload)
-
-        except Exception as e:
-            return {"status": "error", "message": f"Engine failed to read file bytes: {str(e)}"}
