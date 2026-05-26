@@ -20,6 +20,7 @@ import { exportCasesToCSV } from "../../lib/csvExport";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ToolModal from "@/components/ToolModal";
+import BackToTop from "@/components/BackToTop";
 import {
   Search,
   Activity,
@@ -301,10 +302,6 @@ export default function DashboardPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedTool, setSelectedTool] = useState<{ name: string; cat: string; icon: React.ReactNode; id: string } | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [summarizingCaseId, setSummarizingCaseId] = useState<string | null>(null);
-  const [caseSummaries, setCaseSummaries] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
 
   // Workstation states
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
@@ -312,6 +309,10 @@ export default function DashboardPage() {
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [activeTab, setActiveTab] = useState<"metadata" | "ai" | "logs">("metadata");
   const [liveAnalysisResults, setLiveAnalysisResults] = useState<Record<string, any>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [caseSummaries, setCaseSummaries] = useState<Record<string, string>>({});
+  const [summarizingCaseId, setSummarizingCaseId] = useState<string | null>(null);
 
   const hasLiveRecords = caseHistory.length > 0;
   const csvRecords = hasLiveRecords ? caseHistory : demoCaseRecords;
@@ -753,6 +754,7 @@ export default function DashboardPage() {
           item.status.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : allCases;
+
 
   const stats = {
     total: allCases.length,
@@ -1457,7 +1459,7 @@ export default function DashboardPage() {
                             {summarizingCaseId === item.case_id ? (
                               <Loader className="w-3.5 h-3.5 animate-spin" />
                             ) : (
-                              <Brain className="w-3.5.5 h-3" />
+                              <Brain className="w-3.5 h-3" />
                             )}
                             <span className="hidden md:inline">AI Summary</span>
                           </button>
@@ -1474,7 +1476,7 @@ export default function DashboardPage() {
                   >
                     No cases found matching &quot;{searchQuery}&quot;
                   </motion.div>
-                )}
+                ))}
               </AnimatePresence>
             </div>
           </motion.section>
@@ -1491,6 +1493,7 @@ export default function DashboardPage() {
         </div>
       </div>
       <Footer />
+      <BackToTop />
       <ToolModal 
         tool={selectedTool} 
         onClose={() => setSelectedTool(null)} 
