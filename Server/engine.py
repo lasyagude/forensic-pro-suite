@@ -1,3 +1,4 @@
+"""Core Forensic Engine Module for Evidence Processing."""
 import hashlib
 import os
 import datetime
@@ -19,9 +20,6 @@ class ForensicEngine:
         metadata = self.get_metadata()
         metadata["magic_signature"] = file_sig
         metadata["signature_match"] = magic_verified
-
-        print("Extracting Image EXIF Data (if applicable)...")
-        metadata["exif"] = self.extract_image_exif(file_sig)
 
         self.report_data = {
             "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -69,19 +67,3 @@ class ForensicEngine:
             "accessed": datetime.datetime.fromtimestamp(stats.st_atime, tz=datetime.timezone.utc).isoformat(),
             "permissions": oct(stats.st_mode)[-3:]
         }
-    
-    def extract_image_exif(self, file_sig: str) -> dict:
-        supported_formats = ["PNG Image", "JPEG Image"]
-        
-        if file_sig not in supported_formats:
-            return {"status": "skipped", "message": "File signature is not a supported image format"}    
-        
-        from utils import extract_exif_data
-        try:
-            with open(self.evidence_path, "rb") as file_handler:
-                image_binary_payload = file_handler.read()
-            
-            return extract_exif_data(image_binary_payload)
-            
-        except Exception as e:
-            return {"status": "error", "message": f"Engine failed to read file bytes: {str(e)}"}
