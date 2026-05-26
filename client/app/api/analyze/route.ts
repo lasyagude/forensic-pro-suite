@@ -1,6 +1,13 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+
+export const runtime = "nodejs";
+
+const ANALYZE_PROXY_KEY = process.env.ANALYZE_API_KEY ?? "forensic-pro-suite-demo-analyze-key";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export const runtime = "nodejs";
 
@@ -34,6 +41,21 @@ export async function POST(request: NextRequest) {
 
     const contentType = backendResponse.headers.get("content-type") || "application/json";
     const payload = await backendResponse.text();
+
+    return new NextResponse(payload, {
+      status: backendResponse.status,
+      headers: {
+        "content-type": contentType,
+      },
+    });
+  } catch (error) {
+    console.error("Analyze proxy request failed:", error);
+    return NextResponse.json(
+      { error: "Unable to reach the forensic backend service." },
+      { status: 502 }
+    );
+  }
+}
 
     return new NextResponse(payload, {
       status: backendResponse.status,

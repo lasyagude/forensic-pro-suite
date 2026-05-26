@@ -53,6 +53,7 @@ export default function AISummaryPage() {
   const { data: session } = useSession();
   const [analyses, setAnalyses] = useState<AnalysisResult[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [copyNotif, setCopyNotif] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,66 +79,76 @@ export default function AISummaryPage() {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
     setError(null);
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      // Call backend forensic engine
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        body: formData,
-      });
+    const xhr = new XMLHttpRequest();
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Forensic analysis failed: ${errorText}`);
+    xhr.upload.onprogress = (evt) => {
+      if (evt.lengthComputable) {
+        const pct = Math.round((evt.loaded / evt.total) * 100);
+        setUploadProgress(Math.min(pct, 95));
       }
+    };
 
-      const forensicData = await res.json();
+    xhr.onload = async () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const forensicData = JSON.parse(xhr.responseText);
+          setUploadProgress(100);
 
-      // Create case record
-      const caseData: CaseRecord = {
-        id: forensicData.id || `UPLOAD-${Date.now()}`,
-        case_id: forensicData.id || `UPLOAD-${Date.now()}`,
-        filename: file.name,
-        hash_value: forensicData.hash || "Pending",
-        investigator: session?.user?.email || "Unknown",
-        status: "Analyzed",
-        created_at: new Date().toISOString(),
-        file_size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        notes: `Auto-analyzed: ${file.name}`,
-      };
+          const caseData: CaseRecord = {
+            id: forensicData.id || `UPLOAD-${Date.now()}`,
+            case_id: forensicData.id || `UPLOAD-${Date.now()}`,
+            filename: file.name,
+            hash_value: forensicData.hash || "Pending",
+            investigator: session?.user?.email || "Unknown",
+            status: "Analyzed",
+            created_at: new Date().toISOString(),
+            file_size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+            notes: `Auto-analyzed: ${file.name}`,
+          };
 
-      // Get AI analysis
-      const aiSummary = await fetchAISummary(caseData);
+          const aiSummary = await fetchAISummary(caseData);
 
-      // Add to results
-      setAnalyses(prev => [
-        {
-          case_id: caseData.case_id,
-          caseData,
-          forensicData,
-          aiSummary,
-          timestamp: new Date(),
-        },
-        ...prev,
-      ]);
-    } catch (err) {
-      console.error("Upload error:", err);
-      setError("Failed to analyze file. Please try again.");
-    } finally {
+          setAnalyses(prev => [
+            {
+              case_id: caseData.case_id,
+              caseData,
+              forensicData,
+              aiSummary,
+              timestamp: new Date(),
+            },
+            ...prev,
+          ]);
+        } catch {
+          setError("Failed to parse analysis result.");
+        }
+      } else {
+        setError("Forensic analysis failed. Please try again.");
+      }
       setIsUploading(false);
-      // Reset input
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (input) input.value = "";
-    }
+    };
+
+    xhr.onerror = () => {
+      setError("Failed to analyze file. Please try again.");
+      setIsUploading(false);
+      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (input) input.value = "";
+    };
+
+    xhr.open("POST", "/api/analyze");
+    xhr.send(formData);
   };
 
   const copySummary = (summary: CaseSummary | string) => {
@@ -370,6 +381,20 @@ export default function AISummaryPage() {
                   <Upload className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                 )}
               </div>
+
+              {isUploading && (
+                <div className="w-full max-w-xs mx-auto">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="h-full bg-purple-500 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">
+                    {uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : "Processing..."}
+                  </p>
+                </div>
+              )}
 
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
