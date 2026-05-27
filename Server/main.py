@@ -40,14 +40,6 @@ ALLOWED_EXTENSIONS = {
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
 
-# Dashboard statistics endpoint
-@app.get("/api/stats")
-async def get_case_stats():
-    try:
-        from supabase import create_client
-        url = os.getenv("SUPABASE_URL")
-        key = os.getenv("SUPABASE_ANON_KEY")
-
 def get_api_user(authorization: str | None = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header missing")
