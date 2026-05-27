@@ -15,10 +15,13 @@ export interface ForensicReportData {
 }
 
 function sanitize(value: string): string {
-  return value ? value.replace(/[<>&"'/\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
+  return value ? value.replace(/[<>&"'\/\\]/g, (c) => `&#${c.charCodeAt(0)};`) : 'N/A';
 }
 
-export const generateForensicReport = async (data: ForensicReportData) => {
+export const generateForensicReport = async (
+  data: ForensicReportData,
+  returnBlob: boolean = false
+): Promise<Blob | void> => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -288,5 +291,8 @@ export const generateForensicReport = async (data: ForensicReportData) => {
     addFooter(doc, i, totalPages);
   }
 
+  if (returnBlob) {
+    return doc.output('blob');
+  }
   doc.save(`SENTINEL_REPORT_${sanitize(data.case_id)}.pdf`);
 };
