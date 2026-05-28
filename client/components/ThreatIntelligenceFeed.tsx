@@ -15,13 +15,25 @@ const SIMULATED_LOGS = [
   "CORE_ENGINE: Heuristic analysis complete. No obfuscation found."
 ];
 
+interface LogItem {
+  id: string;
+  time: string;
+  text: string;
+}
+
 export default function ThreatIntelligenceFeed() {
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<LogItem[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setLogs((prev) => {
-        const next = [SIMULATED_LOGS[Math.floor(Math.random() * SIMULATED_LOGS.length)], ...prev];
+        const randomText = SIMULATED_LOGS[Math.floor(Math.random() * SIMULATED_LOGS.length)];
+        const newLog: LogItem = {
+          id: `${Date.now()}-${Math.random()}`,
+          time: new Date().toLocaleTimeString([], { hour12: false }),
+          text: randomText,
+        };
+        const next = [newLog, ...prev];
         return next.slice(0, 8);
       });
     }, 3000);
@@ -39,16 +51,16 @@ export default function ThreatIntelligenceFeed() {
       </div>
       <div className="space-y-2 min-h-40">
         <AnimatePresence initial={false}>
-          {logs.map((log, i) => (
+          {logs.map((log) => (
             <motion.p
-              key={`${log}-${i}`}
+              key={log.id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="text-[9px] text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-3 leading-relaxed"
             >
-              <span className="text-emerald-600 mr-2">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
-              {log}
+              <span className="text-emerald-600 mr-2">[{log.time}]</span>
+              {log.text}
             </motion.p>
           ))}
           {logs.length === 0 && (
