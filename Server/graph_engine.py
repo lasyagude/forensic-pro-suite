@@ -126,7 +126,7 @@ class RelationshipEngine:
     def __init__(self, cases: list[dict]):
         self.cases = cases
         self._nodes: dict[str, dict] = {}
-        self._edges: list[dict] = {}
+        self._edges: list[dict] = []
         self._edge_set: set[str] = set()
 
     # ------------------------------------------------------------------
@@ -322,8 +322,6 @@ class RelationshipEngine:
 
             parent_id = case.get("parent_id")
             if parent_id:
-                # Assuming parent_id corresponds to another case's case_id or id in DEMO_CASES
-                nid_parent_ev = f"ev-{_stable_id(parent_id, '')}" # Simplified for demo, might need proper filename lookup
                 # Actually, let's just create an edge between the case/evidence nodes directly
                 nid_parent_case = f"case-{_stable_id(parent_id)}"
                 self._add_edge(nid_case, nid_parent_case, "DERIVED_FROM", {"description": "Child artifact extracted from parent."})
