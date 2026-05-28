@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
@@ -11,9 +11,14 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
   const termInstance = useRef<Terminal | null>(null);
 
   const handleCommand = (cmd: string, term: Terminal) => {
-    const command = cmd.trim().toLowerCase();
+    const trimmed = cmd.trim();
+    if (!trimmed) return;
 
-    switch (command) {
+    const parts = trimmed.split(/\s+/);
+    const baseCommand = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+    switch (baseCommand) {
       case "help":
         term.writeln(
           "Commands: autopsy, wireshark --cli, fls <image>, mactime, vol.py --info, hash <file>, clear"
@@ -29,16 +34,19 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.writeln("[+] Scan complete. Open Autopsy GUI for full report.");
         break;
 
-      case "wireshark --cli":
-        term.writeln("[*] Capturing on eth0 (promiscuous mode)...");
-        term.writeln("  Frame 1: 192.168.1.5 -> 8.8.8.8 DNS Query: forensics.gov");
-        term.writeln("  Frame 2: 8.8.8.8 -> 192.168.1.5 DNS Response: 142.250.80.46");
-        term.writeln("  Frame 3: 192.168.1.5 -> 142.250.80.46 TCP SYN");
-        term.writeln("[!] Suspicious outbound connection on port 4444 detected.");
+      case "wireshark":
+        if (args.length === 1 && args[0].toLowerCase() === "--cli") {
+          term.writeln("[*] Capturing on eth0 (promiscuous mode)...");
+          term.writeln("  Frame 1: 192.168.1.5 -> 8.8.8.8 DNS Query: forensics.gov");
+          term.writeln("  Frame 2: 8.8.8.8 -> 192.168.1.5 DNS Response: 142.250.80.46");
+          term.writeln("  Frame 3: 192.168.1.5 -> 142.250.80.46 TCP SYN");
+          term.writeln("[!] Suspicious outbound connection on port 4444 detected.");
+        } else {
+          term.writeln("Usage: wireshark --cli");
+        }
         break;
 
       case "fls":
-      case "fls <image>":
         term.writeln("r/r 5:    $MFT");
         term.writeln("r/r 6:    $MFTMirr");
         term.writeln("d/d 11:   $Orphan");
@@ -53,12 +61,16 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.writeln("Mon Jan 13 2025 09:15:44 512 mac. r/r 129 /evidence/payload.exe");
         break;
 
-      case "vol.py --info":
-        term.writeln("[*] Volatility 3 Framework");
-        term.writeln("[+] Profile: Win10x64_19041");
-        term.writeln("[+] Processes: 87 running | 3 suspicious (cmd.exe, powershell.exe, nc.exe)");
-        term.writeln("[!] Network connection: nc.exe -> 185.220.101.47:4444 (ESTABLISHED)");
-        term.writeln("[!] Possible reverse shell detected.");
+      case "vol.py":
+        if (args.length === 1 && args[0].toLowerCase() === "--info") {
+          term.writeln("[*] Volatility 3 Framework");
+          term.writeln("[+] Profile: Win10x64_19041");
+          term.writeln("[+] Processes: 87 running | 3 suspicious (cmd.exe, powershell.exe, nc.exe)");
+          term.writeln("[!] Network connection: nc.exe -> 185.220.101.47:4444 (ESTABLISHED)");
+          term.writeln("[!] Possible reverse shell detected.");
+        } else {
+          term.writeln("Usage: vol.py --info");
+        }
         break;
 
       case "clear":
@@ -66,7 +78,6 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         break;
 
       case "hash":
-      case "hash <file>":
         term.writeln("[*] Computing forensic hashes for evidence file...");
         term.writeln("[+] SHA-256: a81f3c72b9e4d6f1c0a5827e3d49b610f7e2c8a5d3b94f16e0c7d2a8b5e3f194");
         term.writeln("[+] MD5:     7f8a3b2c1d0e9f4a5b6c7d8e9f0a1b2c");
@@ -74,11 +85,8 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
         term.writeln("[+] Integrity: VERIFIED - No tampering detected.");
         break;
 
-      case "":
-        break;
-
       default:
-        term.writeln(`bash: ${command}: command not found. Type "help" for available commands.`);
+        term.writeln(`bash: ${baseCommand}: command not found. Type "help" for available commands.`);
     }
   };
 
@@ -225,11 +233,10 @@ function ForensicTerminalContent({ isDark }: { isDark: boolean }) {
 }
 
 export default function ForensicTerminal() {
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
