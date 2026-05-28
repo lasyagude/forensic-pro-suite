@@ -21,8 +21,8 @@ const severityColor: Record<string, string> = {
 };
 
 export default function ForensicMap() {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const mapFill = isDark ? "#1e293b" : "#e2e8f0";
   const mapStroke = isDark ? "#334155" : "#cbd5e1";
   const mapHover = isDark ? "#334155" : "#cbd5e1";
@@ -55,29 +55,30 @@ export default function ForensicMap() {
               {({ geographies }) =>
                 geographies.map((geo) => (
                   <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill={mapFill}
-                    stroke={mapStroke}
-                    strokeWidth={0.5}
-                    style={{ 
-                      default: { outline: 'none' }, 
-                      hover: { outline: 'none', fill: mapHover }, 
-                      pressed: { outline: 'none' } 
-                    }}
-                  />
+                     key={geo.rsmKey}
+                     geography={geo}
+                     fill={mapFill}
+                     stroke={mapStroke}
+                     strokeWidth={0.5}
+                     style={{ 
+                       default: { outline: 'none' }, 
+                       hover: { outline: 'none', fill: mapHover }, 
+                       pressed: { outline: 'none' } 
+                     }}
+                   />
                 ))
               }
             </Geographies>
 
             {THREAT_ACTORS.map((actor) => (
               <Marker key={actor.name} coordinates={actor.coordinates}>
-                <circle r={5} fill={severityColor[actor.severity]} opacity={0.9} />
-                <circle r={9} fill={severityColor[actor.severity]} opacity={0.2} />
+                <title>{`${actor.name} [Severity: ${actor.severity.toUpperCase()}] (${actor.coordinates[1]}° N, ${actor.coordinates[0]}° E)`}</title>
+                <circle r={5} fill={severityColor[actor.severity]} opacity={0.9} className="cursor-pointer" />
+                <circle r={9} fill={severityColor[actor.severity]} opacity={0.2} className="cursor-pointer animate-pulse" />
                 <text
                   textAnchor="middle"
                   y={-12}
-                  style={{ fontFamily: 'monospace', fontSize: '8px', fill: labelFill }}
+                  style={{ fontFamily: 'monospace', fontSize: '8px', fill: labelFill, pointerEvents: 'none' }}
                 >
                   {actor.name}
                 </text>
