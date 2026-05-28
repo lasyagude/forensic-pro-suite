@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, ExternalLink } from "lucide-react";
+import { ArrowLeft, Shield, ExternalLink, HardDriveDownload, Cpu, Binary, FileSpreadsheet } from "lucide-react";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const tools = [
   {
     phase: "Evidence Collection & Preservation",
-    icon: <Shield className="w-5 h-5" />,
+    icon: <HardDriveDownload className="w-5 h-5" />,
     color: "emerald",
     items: [
       { name: "FTK Imager", desc: "Industry standard for creating forensic images (bit-to-bit copies) without installing software", link: "https://www.exterro.com/ftk-imager" },
@@ -20,7 +20,7 @@ const tools = [
   },
   {
     phase: "Volatile Data & Memory Forensics",
-    icon: <Shield className="w-5 h-5" />,
+    icon: <Cpu className="w-5 h-5" />,
     color: "blue",
     items: [
       { name: "Volatility Framework", desc: "Powerful open-source tool for analyzing memory dumps to find processes, passwords, and network connections", link: "https://www.volatilityfoundation.org" },
@@ -30,7 +30,7 @@ const tools = [
   },
   {
     phase: "Deep Analysis & File Recovery",
-    icon: <Shield className="w-5 h-5" />,
+    icon: <Binary className="w-5 h-5" />,
     color: "purple",
     items: [
       { name: "Autopsy / Sleuth Kit", desc: "Leading open-source digital forensics platform with GUI for web history, email, and keyword search", link: "https://www.sleuthkit.org/autopsy" },
@@ -42,7 +42,7 @@ const tools = [
   },
   {
     phase: "Reporting & Courtroom Presentation",
-    icon: <Shield className="w-5 h-5" />,
+    icon: <FileSpreadsheet className="w-5 h-5" />,
     color: "amber",
     items: [
       { name: "Casenotes", desc: "Open-source tool for detailed, timestamped logs of every investigation action", link: "#" },
