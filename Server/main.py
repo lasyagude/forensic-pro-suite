@@ -72,7 +72,11 @@ def write_audit(entry: str):
 async def get_case_stats(current_user: dict = Depends(get_api_user)):
     ...
 @app.post("/api/analyze")
-async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
+async def run_forensic_pipeline(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_api_user),
+):
     tmp_path = None
     archive_metadata = None
 
@@ -124,7 +128,7 @@ async def run_forensic_pipeline(request: Request, file: UploadFile = File(...)):
                     "hash_value": f"SHA256:{report['hash_sha256']}",
                     "file_size": f"{report['metadata']['size_bytes']} bytes",
                     "status": "Pending Review",
-                    "investigator": "system@forensics.com",
+                    "investigator": current_user["id"],
                     "metadata": {
                         "magic_signature": report['metadata']['magic_signature'],
                         # In a real app we'd try to extract device IDs from EXIF/metadata
